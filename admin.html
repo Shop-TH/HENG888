@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>HENG888 Admin</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#0a0a0a;--bg2:#111111;--bg3:#1a1a1a;--bg4:#222222;--bg5:#2a2a2a;
+      --border:rgba(255,255,255,0.10);--border2:rgba(255,255,255,0.18);
+      --text:#f5f5f0;--text2:rgba(245,245,240,0.55);--text3:rgba(245,245,240,0.28);
+      --gold:#d4a847;--gold2:#f0c860;--gold-bg:rgba(212,168,71,0.10);--gold-bd:rgba(212,168,71,0.25);
+      --red:#e05555;--red-bg:rgba(224,85,85,0.10);
+      --green:#4caf7d;--grn-bg:rgba(76,175,125,0.10);
+      --orange:#e08c30;--font:'Prompt',sans-serif;--r:12px;--r-lg:18px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    html,body{background:var(--bg);overscroll-behavior:none;min-height:100vh;}
+    body{font-family:var(--font);color:var(--text);-webkit-font-smoothing:antialiased;}
+    img{display:block;}button{font-family:var(--font);cursor:pointer;}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes slideUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes popIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+    @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(16px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+    #root{min-height:100vh;}
+    .center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:32px;height:100vh;}
+    .spinner{width:28px;height:28px;border:2.5px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+
+    /* ── HEADER ── */
+    .header{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 18px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;}
+    .header-left{display:flex;align-items:center;gap:10px;}
+    .header-logo{font-size:20px;font-weight:800;color:var(--text);letter-spacing:2px;}
+    .header-logo span{color:var(--gold);}
+    .header-role-name{font-size:11px;color:var(--text3);margin-top:2px;}
+    .role-badge{border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;}
+    .role-badge.superadmin{background:rgba(212,168,71,0.12);border:1px solid var(--gold-bd);color:var(--gold);}
+    .role-badge.admin{background:rgba(76,175,125,0.10);border:1px solid rgba(76,175,125,0.25);color:var(--green);}
+
+    /* ── TABS ── */
+    .tabs{background:var(--bg2);border-bottom:2px solid var(--border);display:flex;position:sticky;top:53px;z-index:99;box-shadow:0 4px 12px rgba(0,0,0,.3);}
+    .tab{flex:1;padding:13px 4px 11px;border:none;background:transparent;font-family:var(--font);font-size:10px;font-weight:600;cursor:pointer;color:var(--text3);border-bottom:3px solid transparent;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px;}
+    .tab-icon{font-size:19px;}
+    .tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(212,168,71,.05);}
+    .tab:active{transform:scale(.95);}
+
+    /* ── CONTENT ── */
+    .content{padding:14px;padding-bottom:80px;}
+
+    /* ── CARDS / BUTTONS ── */
+    .card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+    .card-title{font-size:14px;font-weight:700;color:var(--text);}
+    .btn{border:none;border-radius:var(--r);padding:9px 16px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:opacity .15s,transform .1s;}
+    .btn:active{transform:scale(.95);}
+    .btn-gold{background:var(--gold);color:#0a0a0a;}
+    .btn-gold:hover{background:var(--gold2);}
+    .btn-outline{background:transparent;border:1.5px solid var(--border2);color:var(--text2);}
+    .btn-red{background:var(--red-bg);border:1px solid rgba(224,85,85,.25);color:var(--red);}
+    .btn-green{background:var(--grn-bg);border:1px solid rgba(76,175,125,.25);color:var(--green);}
+    .btn-gray{background:var(--bg3);border:1px solid var(--border);color:var(--text2);}
+    .btn-full{width:100%;padding:13px;justify-content:center;}
+    .btn-sm{padding:6px 12px;font-size:12px;}
+    .btn-icon{width:34px;height:34px;padding:0;justify-content:center;font-size:15px;border-radius:var(--r);}
+    .btn:disabled{opacity:.3;cursor:not-allowed;transform:none!important;}
+
+    /* ── ORDER CARD ── */
+    .order-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px;margin-bottom:10px;animation:fadeUp .35s both;}
+    .order-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+    .order-id{font-size:15px;font-weight:800;color:var(--gold);}
+    .order-section{margin-bottom:10px;}
+    .order-section-lbl{font-size:10px;font-weight:600;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+    .order-meta-row{display:flex;gap:6px;margin-bottom:4px;align-items:flex-start;}
+    .order-meta-ico{font-size:13px;flex-shrink:0;margin-top:1px;}
+    .order-meta-val{font-size:13px;color:var(--text2);line-height:1.6;}
+    .order-items{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;margin-top:6px;}
+    .order-item-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);}
+    .order-item-row:last-child{border-bottom:none;}
+    .order-item-name{font-size:13px;color:var(--text);font-weight:500;}
+    .order-item-qty{font-size:13px;color:var(--text2);}
+    /* price — ซ่อนเมื่อ role=admin */
+    .order-item-price{font-size:13px;font-weight:700;color:var(--gold);}
+    .order-total-row{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:10px;margin-top:6px;}
+    .order-total-lbl{font-size:13px;color:var(--text2);}
+    .order-total-val{font-size:18px;font-weight:800;color:var(--gold);}
+    /* hide-price class */
+    .hide-price .order-item-price,
+    .hide-price .order-total-row{display:none!important;}
+
+    .order-foot{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+    .badge{display:inline-block;font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;}
+    .badge-green{background:var(--grn-bg);color:var(--green);border:1px solid rgba(76,175,125,.2);}
+    .badge-gray{background:var(--bg4);color:var(--text3);border:1px solid var(--border);}
+    .badge-red{background:var(--red-bg);color:var(--red);border:1px solid rgba(224,85,85,.2);}
+    .badge-gold{background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-bd);}
+
+    /* ── TRACKING BOX ── */
+    .tracking-box{margin-top:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;}
+    .tracking-lbl{font-size:10px;font-weight:600;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+    .tracking-inp{width:100%;background:var(--bg4);border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-family:var(--font);font-size:13px;color:var(--text);outline:none;transition:border-color .2s;margin-bottom:8px;}
+    .tracking-inp:focus{border-color:var(--gold-bd);}
+    .tracking-inp::placeholder{color:var(--text3);}
+    .tracking-sent{font-size:12px;color:var(--green);display:flex;align-items:center;gap:6px;margin-top:4px;}
+
+    /* ── BRAND / PRODUCT / STATS (superadmin only) ── */
+    .form-group{margin-bottom:14px;}
+    .form-label{display:block;font-size:11px;font-weight:600;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;}
+    .form-input{width:100%;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--r);padding:11px 13px;font-family:var(--font);font-size:14px;color:var(--text);outline:none;transition:border-color .2s;}
+    .form-input:focus{border-color:var(--gold-bd);}
+    .form-input::placeholder{color:var(--text3);}
+    .form-textarea{resize:vertical;min-height:76px;line-height:1.6;}
+    .form-select{appearance:none;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .toggle-wrap{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;}
+    .toggle-lbl{font-size:13px;font-weight:600;color:var(--text);}
+    .toggle-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+    .toggle{width:44px;height:24px;border-radius:12px;cursor:pointer;position:relative;border:none;flex-shrink:0;transition:background .2s;}
+    .toggle-knob{position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.4);transition:left .2s;}
+    .prod-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:13px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;border-left:3px solid transparent;}
+    .prod-thumb{width:52px;height:52px;border-radius:var(--r);object-fit:cover;flex-shrink:0;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;}
+    .prod-thumb img{width:100%;height:100%;object-fit:cover;}
+    .prod-info{flex:1;min-width:0;}
+    .prod-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .prod-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:4px;}
+    .prod-price{font-size:13px;font-weight:700;color:var(--gold);}
+    .prod-actions{display:flex;flex-direction:column;gap:5px;flex-shrink:0;}
+    .brand-admin{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:10px;}
+    .brand-admin-head{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);}
+    .brand-admin-info{display:flex;align-items:center;gap:12px;}
+    .brand-logo-thumb{width:48px;height:48px;border-radius:var(--r);overflow:hidden;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:24px;border:1px solid var(--border);flex-shrink:0;}
+    .brand-logo-thumb img{width:100%;height:100%;object-fit:cover;}
+    .brand-admin-name{font-size:16px;font-weight:700;color:var(--text);}
+    .brand-admin-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+    .brand-admin-body{padding:10px 16px;display:flex;flex-wrap:wrap;gap:6px;}
+    .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+    .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;}
+    .stat-ico{font-size:22px;margin-bottom:6px;}
+    .stat-val{font-size:22px;font-weight:800;color:var(--text);margin-bottom:2px;}
+    .stat-lbl{font-size:11px;color:var(--text3);}
+    .alert{background:rgba(224,140,48,.08);border:1px solid rgba(224,140,48,.2);border-radius:var(--r);padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--orange);}
+
+    /* ── MODAL / CONFIRM ── */
+    .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:flex-end;justify-content:center;}
+    .modal{background:var(--bg2);border-radius:20px 20px 0 0;width:100%;max-height:92vh;overflow-y:auto;padding:20px 18px 40px;animation:slideUp .3s ease;border-top:1px solid var(--border);}
+    .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+    .modal-title{font-size:16px;font-weight:800;color:var(--text);}
+    .modal-close{background:var(--bg3);border:1px solid var(--border);border-radius:8px;width:30px;height:30px;color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center;}
+    .confirm-ov{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:flex;align-items:center;justify-content:center;padding:24px;}
+    .confirm-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);width:100%;max-width:320px;padding:24px 20px;animation:popIn .2s ease;}
+    .confirm-ico{font-size:38px;text-align:center;margin-bottom:12px;}
+    .confirm-ttl{font-size:16px;font-weight:800;text-align:center;margin-bottom:8px;color:var(--text);}
+    .confirm-dsc{font-size:13px;color:var(--text2);text-align:center;line-height:1.7;margin-bottom:20px;white-space:pre-line;}
+    .confirm-row{display:flex;gap:10px;}
+
+    /* ── LOGO UPLOAD / PROD IMG ── */
+    .logo-upload-zone{border:1.5px dashed var(--border2);border-radius:var(--r-lg);padding:24px;cursor:pointer;text-align:center;background:var(--bg3);transition:border-color .2s;}
+    .logo-upload-zone:hover{border-color:var(--gold-bd);}
+    .logo-upload-ico{font-size:28px;margin-bottom:8px;}
+    .logo-upload-txt{font-size:13px;font-weight:500;color:var(--text2);}
+    .logo-upload-hint{font-size:11px;color:var(--text3);margin-top:4px;}
+    .logo-preview-wrap{position:relative;width:100px;height:100px;}
+    .logo-preview-img{width:100px;height:100px;border-radius:var(--r-lg);object-fit:cover;border:1px solid var(--border);}
+    .logo-preview-change{position:absolute;inset:0;background:rgba(0,0,0,.55);border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;cursor:pointer;border:none;}
+    .prod-img-zone{border:1.5px dashed var(--border2);border-radius:var(--r);padding:20px;cursor:pointer;text-align:center;background:var(--bg3);transition:border-color .2s;}
+    .prod-img-zone:hover{border-color:var(--gold-bd);}
+    .prod-img-preview{position:relative;width:90px;height:90px;}
+    .prod-img-preview img{width:90px;height:90px;border-radius:var(--r);object-fit:cover;border:1px solid var(--border);}
+    .prod-img-preview-btn{position:absolute;inset:0;background:rgba(0,0,0,.55);border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;cursor:pointer;border:none;}
+
+    /* ── LOGIN ── */
+    .login-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;background:var(--bg);}
+    .login-logo{font-size:36px;font-weight:800;color:var(--text);letter-spacing:3px;}
+    .login-logo span{color:var(--gold);}
+    .login-sub{font-size:13px;color:var(--text3);text-align:center;line-height:1.7;}
+    .login-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px;width:100%;max-width:360px;}
+
+    /* ── TOAST ── */
+    .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);border-radius:28px;padding:10px 24px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.4);white-space:nowrap;animation:toastIn .3s ease;pointer-events:none;}
+
+    /* ── EMPTY ── */
+    .empty{text-align:center;padding:40px 20px;color:var(--text3);}
+
+    /* ── ADMIN-ONLY: ป้ายแจ้ง role ── */
+    .role-notice{background:rgba(76,175,125,0.07);border:1px solid rgba(76,175,125,0.18);border-radius:var(--r);padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--green);display:flex;align-items:center;gap:8px;}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="module">
+  import{initializeApp}from"https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+  import{getFirestore,doc,getDoc,setDoc,updateDoc,deleteDoc,collection,getDocs,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+  const FC={apiKey:"AIzaSyBCykbrwCiWO1eAlj9YgpeJj9JGPc6XEK4",authDomain:"shop-th.firebaseapp.com",projectId:"shop-th",storageBucket:"shop-th.firebasestorage.app",messagingSenderId:"407059998090",appId:"1:407059998090:web:e008bcb4042e574eb7d473"};
+  const SHOP="shop_001";
+  // ✅ superadmin hardcode — เห็นทุกอย่าง
+  const SUPERADMIN_IDS=["7234688831","8314802999"];
+  const BOT="8668413903:AAHx8ULGApyT0EMbrpe5FCMYehaizVHPwKY";
+
+  const app=initializeApp(FC);const db=getFirestore(app);
+  const tg=window.Telegram?.WebApp;const U=tg?.initDataUnsafe?.user||null;
+  if(tg)tg.expand();
+  const fmt=n=>"฿"+Number(n).toLocaleString("th-TH");
+
+  // ── Auth ──
+  let ADMIN=null; // { chatId, name, role: 'superadmin'|'admin' }
+
+  async function checkAuth(){
+    if(U){
+      const cid=String(U.id);
+      if(SUPERADMIN_IDS.includes(cid)){
+        ADMIN={chatId:cid,name:U.first_name||"Superadmin",role:"superadmin"};
+        return true;
+      }
+      // เช็ค Firestore — role อาจเป็น 'admin'
+      try{
+        const timeout=new Promise(r=>setTimeout(()=>r(null),5000));
+        const snap=await Promise.race([getDoc(doc(db,"admins",cid)),timeout]);
+        if(snap&&snap.exists&&snap.exists()&&snap.data().active){
+          ADMIN={...snap.data(),chatId:cid};
+          return true;
+        }
+      }catch{}
+      return false;
+    }
+    return"browser";
+  }
+
+  const isSuperAdmin=()=>ADMIN?.role==="superadmin";
+  const isAdmin=()=>ADMIN?.role==="admin";
+
+  // ── Firestore loaders ──
+  async function loadBrands(){const s=await getDocs(collection(db,"shops",SHOP,"brands"));return s.docs.map(d=>({docId:d.id,...d.data()}));}
+  async function loadProducts(){const s=await getDocs(collection(db,"shops",SHOP,"products"));return s.docs.map(d=>({docId:d.id,...d.data()})).sort((a,b)=>(a.brand||"").localeCompare(b.brand||""));}
+  async function loadOrders(){const s=await getDocs(collection(db,"orders"));return s.docs.map(d=>({docId:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));}
+  async function saveProd(data,docId){const ref=docId?doc(db,"shops",SHOP,"products",docId):doc(db,"shops",SHOP,"products",data.id||Date.now().toString());await setDoc(ref,data,{merge:true});}
+  async function delProd(docId){await deleteDoc(doc(db,"shops",SHOP,"products",docId));}
+  async function saveBrand(data,docId){const ref=docId?doc(db,"shops",SHOP,"brands",docId):doc(db,"shops",SHOP,"brands",data.key||Date.now().toString());await setDoc(ref,data,{merge:true});}
+  async function delBrand(docId){await deleteDoc(doc(db,"shops",SHOP,"brands",docId));}
+  async function updateOrder(docId,status){await updateDoc(doc(db,"orders",docId),{status});}
+
+  function cropCompress(file,size=600,quality=0.78){return new Promise((res,rej)=>{const r=new FileReader();r.onerror=rej;r.onload=ev=>{const img=new Image();img.onerror=rej;img.onload=()=>{try{const s=Math.min(img.width,img.height);const sx=(img.width-s)/2;const sy=(img.height-s)/2;const c=document.createElement("canvas");c.width=size;c.height=size;const ctx=c.getContext("2d");ctx.fillStyle="#0a0a0a";ctx.fillRect(0,0,size,size);ctx.drawImage(img,sx,sy,s,s,0,0,size,size);const b64=c.toDataURL("image/jpeg",quality);res(b64.length*0.75>200*1024?c.toDataURL("image/jpeg",0.6):b64);}catch(e){rej(e);}};img.src=ev.target.result;};r.readAsDataURL(file);});}
+
+  let toastT=null;
+  function toast(msg,type="success"){document.querySelector(".toast")?.remove();if(toastT)clearTimeout(toastT);const t=document.createElement("div");t.className="toast";t.textContent=msg;t.style.background=type==="success"?"#d4a847":type==="error"?"#e05555":"#e08c30";t.style.color=type==="success"?"#0a0a0a":"#fff";document.body.appendChild(t);toastT=setTimeout(()=>t.remove(),2500);}
+
+  let S={view:"loading",tab:"orders",brands:[],products:[],orders:[],modal:null,mdata:{},confirm:null};
+  const set=p=>{S={...S,...p};render();};
+  async function loadAll(){const[b,p,o]=await Promise.all([loadBrands(),loadProducts(),loadOrders()]);S.brands=b;S.products=p;S.orders=o;}
+
+  // ══════════════════════════════════════════
+  //  RENDER
+  // ══════════════════════════════════════════
+  function render(){
+    const r=document.getElementById("root");
+    if(S.view==="loading"){r.innerHTML=`<div class="center"><div class="spinner"></div><div style="color:var(--text3);font-size:13px;margin-top:8px">กำลังโหลด...</div></div>`;return;}
+    if(S.view==="denied"){r.innerHTML=`<div class="center"><div style="font-size:48px">🔒</div><div style="font-size:18px;font-weight:800;color:var(--text)">ไม่มีสิทธิ์เข้าใช้งาน</div><div style="font-size:13px;color:var(--text3)">กรุณาเปิดผ่าน Telegram Bot ครับ</div></div>`;return;}
+    if(S.view==="browser"){r.innerHTML=browserHTML();bindBrowser();return;}
+
+    // ── tabs ตาม role ──
+    const tabsHtml=isSuperAdmin()?`
+      <button class="tab ${S.tab==="orders"?"active":""}" data-tab="orders"><span class="tab-icon">📋</span><span>ออเดอร์</span></button>
+      <button class="tab ${S.tab==="brands"?"active":""}" data-tab="brands"><span class="tab-icon">🏷️</span><span>แบรนด์</span></button>
+      <button class="tab ${S.tab==="products"?"active":""}" data-tab="products"><span class="tab-icon">📦</span><span>สินค้า</span></button>
+      <button class="tab ${S.tab==="stats"?"active":""}" data-tab="stats"><span class="tab-icon">📊</span><span>ภาพรวม</span></button>`
+    :`<button class="tab active" data-tab="orders"><span class="tab-icon">📋</span><span>ออเดอร์</span></button>`;
+
+    let content="";
+    if(S.tab==="orders")content=tabOrders();
+    else if(S.tab==="brands"&&isSuperAdmin())content=tabBrands();
+    else if(S.tab==="products"&&isSuperAdmin())content=tabProds();
+    else if(S.tab==="stats"&&isSuperAdmin())content=tabStats();
+
+    r.innerHTML=`
+      <div class="header">
+        <div class="header-left">
+          <div>
+            <div class="header-logo">HENG<span>888</span></div>
+            <div class="header-role-name">${ADMIN?.name||U?.first_name||"Admin"}</div>
+          </div>
+        </div>
+        <span class="role-badge ${ADMIN?.role||"admin"}">${isSuperAdmin()?"⭐ Superadmin":"👤 Admin"}</span>
+      </div>
+      <div class="tabs">${tabsHtml}</div>
+      <div class="content">${content}</div>
+      ${S.modal?modalHTML():""}${S.confirm?confirmHTML():""}`;
+    bindMain();if(S.modal)bindModal();if(S.confirm)bindConfirm();
+  }
+
+  // ══ Browser Login ══
+  const browserHTML=()=>`<div class="login-wrap"><div class="login-logo">HENG<span>888</span></div><div class="login-sub">กรอก Chat ID เพื่อเข้าใช้งานครับ</div><div class="login-box"><div class="form-group"><label class="form-label">Chat ID</label><input class="form-input" id="cid-in" type="number" placeholder="เช่น 123456789"/></div><button class="btn btn-gold btn-full" id="do-login">เข้าสู่ระบบ</button></div></div>`;
+  function bindBrowser(){
+    document.getElementById("do-login")?.addEventListener("click",async()=>{
+      const cid=document.getElementById("cid-in")?.value.trim();
+      if(!cid)return toast("กรุณากรอก Chat ID ครับ","error");
+      set({view:"loading"});
+      if(SUPERADMIN_IDS.includes(cid)){ADMIN={chatId:cid,name:"Superadmin",role:"superadmin"};await loadAll();set({view:"main"});toast("✅ เข้าสู่ระบบแล้วครับ");return;}
+      const snap=await getDoc(doc(db,"admins",cid));
+      if(snap.exists()&&snap.data().active){ADMIN={...snap.data(),chatId:cid};await loadAll();set({view:"main"});toast("✅ เข้าสู่ระบบแล้วครับ");}
+      else{set({view:"browser"});toast("ไม่พบ Chat ID นี้ในระบบครับ","error");}
+    });
+  }
+
+  // ══════════════════════════════════════════
+  //  TAB: ORDERS
+  //  superadmin → เห็นราคา + ปุ่มยืนยัน/ปฏิเสธ
+  //  admin      → เห็นแค่รายละเอียดสินค้า ไม่เห็นราคา + เห็นปุ่ม tracking
+  // ══════════════════════════════════════════
+  function tabOrders(){
+    const notice=isAdmin()?`<div class="role-notice">👤 คุณเห็นเฉพาะรายละเอียดสินค้าและข้อมูลจัดส่ง — ราคาจะถูกซ่อนไว้</div>`:"";
+
+    const html=S.orders.map(o=>{
+      const itemsHtml=(o.items||[]).map(i=>`
+        <div class="order-item-row">
+          <span class="order-item-name">${i.name}</span>
+          <span class="order-item-qty">×${i.qty}</span>
+          ${isSuperAdmin()?`<span class="order-item-price">${fmt(i.price*i.qty)}</span>`:""}
+        </div>`).join("");
+
+      // ปุ่มตาม role
+      const actionBtns=isSuperAdmin()&&(!o.status||o.status==="รอตรวจสอบ")?`
+        <button class="btn btn-green btn-sm" data-co="${o.docId}" data-cid="${o.chatId}">✅ ยืนยัน</button>
+        <button class="btn btn-red btn-sm" data-ro="${o.docId}">❌ ปฏิเสธ</button>`:"";
+
+      // tracking — admin เห็นหลังออเดอร์ยืนยันแล้ว
+      const trackingBox=(o.status==="ยืนยันแล้ว"&&o.chatId&&o.chatId!=="guest")?`
+        <div class="tracking-box">
+          <div class="tracking-lbl">🔗 ส่งลิงก์ติดตาม Rider</div>
+          <input class="tracking-inp" id="trk-${o.docId}" placeholder="https://track.grab.com/..." value="${o.trackingUrl||""}"/>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn btn-gold btn-sm" style="flex:1" data-send-trk="${o.docId}" data-cid="${o.chatId}" data-oid="${o.orderId||o.docId}">📤 ส่งให้ลูกค้า</button>
+            ${o.trackingUrl?`<div class="tracking-sent">✅ ส่งแล้ว</div>`:""}
+          </div>
+        </div>`:"";
+
+      return`<div class="order-card ${isAdmin()?"hide-price":""}">
+        <div class="order-head">
+          <span class="order-id">${o.orderId||o.docId}</span>
+          <span class="badge ${o.status==="ยืนยันแล้ว"?"badge-green":o.status==="ปฏิเสธ"?"badge-red":"badge-gold"}">${o.status||"รอตรวจสอบ"}</span>
+        </div>
+
+        <div class="order-section">
+          <div class="order-section-lbl">ข้อมูลลูกค้า</div>
+          <div class="order-meta-row"><span class="order-meta-ico">👤</span><span class="order-meta-val">${o.customerName||"-"} ${o.username?"@"+o.username:""}</span></div>
+          <div class="order-meta-row"><span class="order-meta-ico">📞</span><span class="order-meta-val">${o.phone||"-"}</span></div>
+          <div class="order-meta-row"><span class="order-meta-ico">🏠</span><span class="order-meta-val">${o.address||"-"}</span></div>
+          ${o.note?`<div class="order-meta-row"><span class="order-meta-ico">💬</span><span class="order-meta-val">${o.note}</span></div>`:""}
+          ${o.location?`<div class="order-meta-row"><span class="order-meta-ico">🗺️</span><span class="order-meta-val"><a href="https://maps.google.com/?q=${o.location.lat||o.location},${o.location.lng||""}" target="_blank" style="color:var(--gold)">ดูแผนที่</a></span></div>`:""}
+        </div>
+
+        <div class="order-section">
+          <div class="order-section-lbl">รายการสินค้า</div>
+          <div class="order-items">${itemsHtml}</div>
+        </div>
+
+        ${isSuperAdmin()?`<div class="order-total-row"><span class="order-total-lbl">ยอดรวม</span><span class="order-total-val">${fmt(o.total||0)}</span></div>`:""}
+
+        <div class="order-foot">${actionBtns}</div>
+        ${trackingBox}
+      </div>`;
+    }).join("")||`<div class="empty"><div style="font-size:40px;margin-bottom:10px">📋</div><div>ยังไม่มีออเดอร์ครับ</div></div>`;
+
+    return`${notice}<div class="card-head"><div class="card-title">ออเดอร์ (${S.orders.length})</div><button class="btn btn-gray btn-sm" id="refresh-orders">🔄 รีเฟรช</button></div>${html}`;
+  }
+
+  // ══ TABS: superadmin เท่านั้น ══
+  function tabBrands(){
+    const html=S.brands.map(b=>{const cnt=S.products.filter(p=>p.brand===b.key).length;return`<div class="brand-admin"><div class="brand-admin-head"><div class="brand-admin-info"><div class="brand-logo-thumb">${b.logoUrl?`<img src="${b.logoUrl}" alt="${b.name}" onerror="this.style.display='none'"/>`:b.emoji||"🫧"}</div><div><div class="brand-admin-name">${b.name}</div><div class="brand-admin-sub">${cnt} SKU · ${b.desc||""}</div></div></div><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" data-eb="${b.docId}">✏️ แก้ไข</button><button class="btn btn-red btn-sm" data-db="${b.docId}" data-dbn="${b.name}">🗑️</button></div></div><div class="brand-admin-body">${S.products.filter(p=>p.brand===b.key).slice(0,4).map(p=>`<span class="badge badge-gray">${p.name}</span>`).join("")}${cnt>4?`<span class="badge badge-gold">+${cnt-4}</span>`:""}${cnt===0?`<span style="font-size:12px;color:var(--text3)">ยังไม่มีสินค้า</span>`:""}</div></div>`;}).join("")||`<div class="empty"><div style="font-size:40px;margin-bottom:10px">🏷️</div><div>ยังไม่มีแบรนด์ครับ</div></div>`;
+    return`<div class="card-head"><div class="card-title">แบรนด์ (${S.brands.length})</div><button class="btn btn-gold" id="add-brand">+ เพิ่มแบรนด์</button></div>${html}`;
+  }
+
+  function tabProds(){
+    const low=S.products.filter(p=>(p.stock||0)<=10&&p.active);
+    const html=S.products.map(p=>{const b=S.brands.find(x=>x.key===p.brand);const color=p.active?"var(--gold)":"var(--border)";return`<div class="prod-item" style="border-left-color:${color}"><div class="prod-thumb">${p.imageUrl?`<img src="${p.imageUrl}" onerror="this.style.display='none'"/>`:b?.emoji||"📦"}</div><div class="prod-info"><div class="prod-name">${p.name}</div><div class="prod-meta"><span class="badge badge-gold">${b?.name||p.brand}</span><span class="badge ${p.active?"badge-green":"badge-gray"}">${p.active?"แสดง":"ซ่อน"}</span><span class="badge ${(p.stock||0)<=5?"badge-red":(p.stock||0)<=10?"badge-gold":"badge-gray"}">📦 ${p.stock||0}</span></div><div class="prod-price">${fmt(p.price)}</div></div><div class="prod-actions"><button class="btn btn-outline btn-icon btn-sm" data-ep="${p.docId}">✏️</button><button class="btn btn-gray btn-icon btn-sm" data-sp="${p.docId}">📦</button><button class="btn ${p.active?"btn-gray":"btn-green"} btn-icon btn-sm" data-tp="${p.docId}" data-ta="${p.active}">${p.active?"👁":"✓"}</button><button class="btn btn-red btn-icon btn-sm" data-dp="${p.docId}" data-dn="${p.name}">🗑️</button></div></div>`;}).join("")||`<div class="empty"><div style="font-size:40px;margin-bottom:10px">📦</div><div>ยังไม่มีสินค้าครับ</div></div>`;
+    return`${low.length>0?`<div class="alert">⚠️ สินค้าสต็อกต่ำ ${low.length} รายการ (≤10 ชิ้น)</div>`:""}<div class="card-head"><div class="card-title">สินค้า (${S.products.length})</div><button class="btn btn-gold" id="add-prod">+ เพิ่มสินค้า</button></div>${html}`;
+  }
+
+  function tabStats(){
+    const active=S.products.filter(p=>p.active).length;
+    const low=S.products.filter(p=>(p.stock||0)<=10).length;
+    const val=S.products.reduce((s,p)=>s+(p.price*(p.stock||0)),0);
+    const conf=S.orders.filter(o=>o.status==="ยืนยันแล้ว").length;
+    const rev=S.orders.filter(o=>o.status==="ยืนยันแล้ว").reduce((s,o)=>s+(o.total||0),0);
+    return`<div class="stat-grid">${[["📦",S.products.length,"SKU ทั้งหมด"],["✅",active,"SKU แสดง"],["⚠️",low+" รายการ","สต็อกต่ำ"],["💰",fmt(val),"มูลค่าสต็อก"],["📋",S.orders.length,"ออเดอร์"],["🎉",conf,"ยืนยันแล้ว"],["💵",fmt(rev),"ยอดขาย COD"],["🏷️",S.brands.length,"แบรนด์"]].map(([e,v,l])=>`<div class="stat-card"><div class="stat-ico">${e}</div><div class="stat-val">${v}</div><div class="stat-lbl">${l}</div></div>`).join("")}</div>`;
+  }
+
+  // ══ MODAL ══
+  function modalHTML(){
+    const d=S.mdata;let title="",body="";
+    if(S.modal==="add_prod"||S.modal==="edit_prod"){
+      title=S.modal==="add_prod"?"+ เพิ่มสินค้าใหม่":"✏️ แก้ไขสินค้า";
+      body=`<div class="form-group"><label class="form-label">แบรนด์ *</label><select class="form-input form-select" id="f-brand">${S.brands.map(b=>`<option value="${b.key}" ${d.brand===b.key?"selected":""}>${b.name}</option>`).join("")}</select></div><div class="form-group"><label class="form-label">ชื่อสินค้า *</label><input class="form-input" id="f-name" placeholder="เช่น Dior Sauvage 100ml" value="${d.name||""}"/></div><div class="form-row"><div class="form-group"><label class="form-label">ราคา (฿) *</label><input class="form-input" id="f-price" type="number" placeholder="3500" value="${d.price||""}"/></div><div class="form-group"><label class="form-label">สต็อก</label><input class="form-input" id="f-stock" type="number" placeholder="20" value="${d.stock||""}"/></div></div><div class="form-group"><label class="form-label">รูปสินค้า</label><div id="prod-img-wrap">${d.imageUrl?`<div class="prod-img-preview"><img id="prod-img-el" src="${d.imageUrl}"/><button class="prod-img-preview-btn" onclick="document.getElementById('f-img-file').click()">เปลี่ยน</button></div>`:`<div class="prod-img-zone" onclick="document.getElementById('f-img-file').click()"><div style="font-size:24px;margin-bottom:6px">🖼️</div><div class="logo-upload-txt">อัปโหลดรูปสินค้า</div></div>`}<input type="file" id="f-img-file" accept="image/*" style="display:none"/><input type="hidden" id="f-img" value="${d.imageUrl||""}"/></div></div><div class="form-group"><label class="form-label">รายละเอียด</label><textarea class="form-input form-textarea" id="f-desc" placeholder="คุณสมบัติ กลิ่น ปริมาณ...">${d.description||""}</textarea></div><div class="toggle-wrap" style="margin-bottom:16px"><div><div class="toggle-lbl">แสดงสินค้า</div><div class="toggle-sub">ลูกค้าจะเห็นสินค้านี้</div></div><button class="toggle" id="f-toggle" style="background:${d.active!==false?"var(--gold)":"var(--bg5)"}"><div class="toggle-knob" style="left:${d.active!==false?22:3}px"></div></button></div><button class="btn btn-gold btn-full" id="save-prod">💾 บันทึกสินค้า</button>`;
+    }
+    if(S.modal==="add_brand"||S.modal==="edit_brand"){
+      title=S.modal==="add_brand"?"+ เพิ่มแบรนด์":"✏️ แก้ไขแบรนด์";
+      body=`<div class="form-group"><label class="form-label">ชื่อแบรนด์ *</label><input class="form-input" id="f-bname" placeholder="เช่น DIOR" value="${d.name||""}"/></div><div class="form-group"><label class="form-label">คำอธิบาย</label><input class="form-input" id="f-bdesc" placeholder="น้ำหอมแบรนด์ High-end" value="${d.desc||""}"/></div><div class="form-group"><label class="form-label">Logo แบรนด์</label><div id="logo-wrap" style="display:flex;flex-direction:column;gap:10px">${d.logoUrl?`<div class="logo-preview-wrap"><img class="logo-preview-img" id="logo-preview" src="${d.logoUrl}"/><button class="logo-preview-change" onclick="document.getElementById('f-logo-file').click()">เปลี่ยน Logo</button></div>`:`<div class="logo-upload-zone" onclick="document.getElementById('f-logo-file').click()"><div class="logo-upload-ico">🖼️</div><div class="logo-upload-txt">อัปโหลด Logo แบรนด์</div></div>`}<input type="file" id="f-logo-file" accept="image/*" style="display:none"/><input type="hidden" id="f-logo" value="${d.logoUrl||""}"/></div></div><button class="btn btn-gold btn-full" id="save-brand">💾 บันทึกแบรนด์</button>`;
+    }
+    if(S.modal==="stock"){
+      const p=S.products.find(x=>x.docId===d.docId);title="📦 ปรับสต็อก";
+      body=`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center;margin-bottom:16px"><div style="font-size:12px;color:var(--text3);margin-bottom:6px">${p?.name}</div><div style="font-size:36px;font-weight:800;color:var(--text)">${p?.stock||0} <span style="font-size:14px;color:var(--text3)">ชิ้น</span></div></div><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px">${[-50,-10,-5,-1,1,5,10,50].map(n=>`<button class="btn ${n<0?"btn-red":"btn-green"} sk-d" data-n="${n}" style="min-width:54px">${n>0?"+":""}${n}</button>`).join("")}</div><div class="form-group"><label class="form-label">ตั้งค่าโดยตรง</label><input class="form-input" id="f-stk" type="number" placeholder="${p?.stock||0}" style="text-align:center;font-size:20px;font-weight:700"/></div><button class="btn btn-gold btn-full" id="save-stk">💾 อัปเดตสต็อก</button>`;
+    }
+    return`<div class="modal-ov" id="modal-ov"><div class="modal"><div class="modal-head"><div class="modal-title">${title}</div><button class="modal-close" id="close-modal">✕</button></div>${body}</div></div>`;
+  }
+
+  function confirmHTML(){const c=S.confirm;return`<div class="confirm-ov"><div class="confirm-box"><div class="confirm-ico">${c.icon||"⚠️"}</div><div class="confirm-ttl">${c.title}</div><div class="confirm-dsc">${c.desc}</div><div class="confirm-row"><button class="btn btn-gray btn-full" id="c-cancel">ยกเลิก</button><button class="btn btn-red btn-full" id="c-ok">${c.ok||"ยืนยัน"}</button></div></div></div>`;}
+
+  // ══ BIND ══
+  function bindMain(){
+    // tabs — ถ้า admin จะมีแค่ tab orders
+    document.querySelectorAll(".tab").forEach(el=>el.addEventListener("click",async()=>{
+      if(!isSuperAdmin())return; // admin กดแค่ tab orders ได้
+      if(el.dataset.tab==="orders")S.orders=await loadOrders();
+      set({tab:el.dataset.tab});
+    }));
+    document.getElementById("refresh-orders")?.addEventListener("click",async()=>{S.orders=await loadOrders();set({});});
+    // superadmin only
+    if(isSuperAdmin()){
+      document.getElementById("add-prod")?.addEventListener("click",()=>set({modal:"add_prod",mdata:{active:true,brand:S.brands[0]?.key}}));
+      document.getElementById("add-brand")?.addEventListener("click",()=>set({modal:"add_brand",mdata:{}}));
+      document.querySelectorAll("[data-ep]").forEach(el=>el.addEventListener("click",()=>{const p=S.products.find(x=>x.docId===el.dataset.ep);set({modal:"edit_prod",mdata:{...p}});}));
+      document.querySelectorAll("[data-sp]").forEach(el=>el.addEventListener("click",()=>set({modal:"stock",mdata:{docId:el.dataset.sp}})));
+      document.querySelectorAll("[data-tp]").forEach(el=>el.addEventListener("click",async()=>{const p=S.products.find(x=>x.docId===el.dataset.tp);await saveProd({active:!p.active},p.docId);S.products=await loadProducts();set({});toast(p.active?"ซ่อนสินค้าแล้ว":"แสดงสินค้าแล้ว",p.active?"warn":"success");}));
+      document.querySelectorAll("[data-dp]").forEach(el=>el.addEventListener("click",()=>set({confirm:{icon:"🗑️",title:"ลบสินค้า?",desc:`"${el.dataset.dn}"\nไม่สามารถกู้คืนได้`,ok:"ลบ",onOk:async()=>{await delProd(el.dataset.dp);S.products=await loadProducts();set({confirm:null});toast("ลบสินค้าแล้ว","error");}}})));
+      document.querySelectorAll("[data-eb]").forEach(el=>el.addEventListener("click",()=>{const b=S.brands.find(x=>x.docId===el.dataset.eb);set({modal:"edit_brand",mdata:{...b}});}));
+      document.querySelectorAll("[data-db]").forEach(el=>el.addEventListener("click",()=>set({confirm:{icon:"🗑️",title:"ลบแบรนด์?",desc:`"${el.dataset.dbn}"\nสินค้าในแบรนด์จะยังอยู่`,ok:"ลบ",onOk:async()=>{await delBrand(el.dataset.db);S.brands=await loadBrands();set({confirm:null});toast("ลบแบรนด์แล้ว","error");}}})));
+      // ยืนยัน/ปฏิเสธ — superadmin เท่านั้น
+      document.querySelectorAll("[data-co]").forEach(el=>el.addEventListener("click",async()=>{await updateOrder(el.dataset.co,"ยืนยันแล้ว");S.orders=await loadOrders();set({});toast("✅ ยืนยันออเดอร์แล้ว");}));
+      document.querySelectorAll("[data-ro]").forEach(el=>el.addEventListener("click",async()=>{await updateOrder(el.dataset.ro,"ปฏิเสธ");S.orders=await loadOrders();set({});toast("❌ ปฏิเสธออเดอร์แล้ว","error");}));
+    }
+    // ส่งลิงก์ tracking — ทั้ง superadmin และ admin ทำได้ (หลัง superadmin ยืนยันแล้ว)
+    document.querySelectorAll("[data-send-trk]").forEach(el=>el.addEventListener("click",async()=>{
+      const docId=el.dataset.sendTrk;const chatId=el.dataset.cid;const orderId=el.dataset.oid;
+      const link=document.getElementById(`trk-${docId}`)?.value.trim();
+      if(!link)return toast("กรุณาวางลิงก์ติดตามก่อนครับ","error");
+      if(!link.startsWith("http"))return toast("ลิงก์ต้องขึ้นต้นด้วย http ครับ","error");
+      if(!chatId||chatId==="guest")return toast("ไม่พบ Chat ID ลูกค้าครับ","error");
+      el.disabled=true;el.textContent="⏳ กำลังส่ง...";
+      try{
+        // ส่งให้ลูกค้า
+        const res=await fetch(`https://api.telegram.org/bot${BOT}/sendMessage`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:chatId,parse_mode:"Markdown",text:`🛵 *Rider กำลังมาส่งสินค้าค่ะ!*\n\n📋 เลขออเดอร์: *${orderId}*\n\n🔗 ติดตามสถานะการจัดส่ง:\n${link}\n\nกรุณาเตรียมเงินสดไว้ชำระค่าส่งด้วยนะคะ 😊`})});
+        const result=await res.json();
+        if(!result.ok)throw new Error(result.description||"Telegram error");
+        // ✅ forward ลิงก์ให้ superadmin ทุกคนด้วย
+        for(const sid of SUPERADMIN_IDS){
+          await fetch(`https://api.telegram.org/bot${BOT}/sendMessage`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:sid,parse_mode:"Markdown",text:`📦 *อัปเดตการจัดส่ง*\n\n📋 ออเดอร์: *${orderId}*\n🔗 ลิงก์ติดตาม:\n${link}`})});
+        }
+        await updateDoc(doc(db,"orders",docId),{trackingUrl:link,trackingSentAt:serverTimestamp()});
+        S.orders=await loadOrders();set({tab:"orders"});
+        toast("✅ ส่งลิงก์ให้ลูกค้า + superadmin แล้วค่ะ");
+      }catch(e){el.disabled=false;el.textContent="📤 ส่งให้ลูกค้า";toast("ส่งไม่ได้: "+e.message,"error");}
+    }));
+  }
+
+  function bindModal(){
+    document.getElementById("close-modal")?.addEventListener("click",()=>set({modal:null,mdata:{}}));
+    document.getElementById("modal-ov")?.addEventListener("click",e=>{if(e.target.id==="modal-ov")set({modal:null,mdata:{}});});
+    document.getElementById("f-img-file")?.addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;try{const b64=await cropCompress(f,600,0.78);document.getElementById("f-img").value=b64;const wrap=document.getElementById("prod-img-wrap");wrap.innerHTML=`<div class="prod-img-preview"><img id="prod-img-el" src="${b64}"/><button class="prod-img-preview-btn" onclick="document.getElementById('f-img-file').click()">เปลี่ยน</button></div><input type="file" id="f-img-file" accept="image/*" style="display:none"/><input type="hidden" id="f-img" value="${b64}"/>`;toast("✅ ประมวลผลรูปแล้ว");}catch{toast("ประมวลผลรูปไม่ได้ครับ","error");}});
+    document.getElementById("f-logo-file")?.addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;try{const b64=await cropCompress(f,400,0.82);document.getElementById("f-logo").value=b64;const wrap=document.getElementById("logo-wrap");wrap.innerHTML=`<div class="logo-preview-wrap"><img class="logo-preview-img" id="logo-preview" src="${b64}"/><button class="logo-preview-change" onclick="document.getElementById('f-logo-file').click()">เปลี่ยน Logo</button></div><input type="file" id="f-logo-file" accept="image/*" style="display:none"/><input type="hidden" id="f-logo" value="${b64}"/>`;toast("✅ อัปโหลด Logo แล้ว");}catch{toast("อัปโหลด Logo ไม่ได้ครับ","error");}});
+    document.getElementById("f-toggle")?.addEventListener("click",()=>{const btn=document.getElementById("f-toggle");const knob=btn?.querySelector(".toggle-knob");const nv=S.mdata.active===false;btn.style.background=nv?"var(--gold)":"var(--bg5)";knob.style.left=nv?"22px":"3px";S.mdata.active=nv;});
+    document.getElementById("save-prod")?.addEventListener("click",async()=>{const data={brand:document.getElementById("f-brand")?.value,name:document.getElementById("f-name")?.value.trim(),price:Number(document.getElementById("f-price")?.value),stock:Number(document.getElementById("f-stock")?.value||0),imageUrl:document.getElementById("f-img")?.value||"",description:document.getElementById("f-desc")?.value.trim(),active:S.mdata.active!==false};if(!data.name||!data.price)return toast("กรุณากรอกชื่อและราคาครับ","error");if(!data.id&&S.modal==="add_prod"){const px=(data.brand||"XX").slice(0,2).toUpperCase();data.id=px+Date.now().toString().slice(-4);}await saveProd(data,S.modal==="edit_prod"?S.mdata.docId:null);S.products=await loadProducts();set({modal:null,mdata:{}});toast("✅ บันทึกสินค้าแล้ว");});
+    document.getElementById("save-brand")?.addEventListener("click",async()=>{const name=document.getElementById("f-bname")?.value.trim();const desc=document.getElementById("f-bdesc")?.value.trim();const logo=document.getElementById("f-logo")?.value||"";if(!name)return toast("กรุณากรอกชื่อแบรนด์ครับ","error");const key=S.modal==="edit_brand"?S.mdata.key:name.toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,12)||"brand"+Date.now();await saveBrand({key,name,desc,logoUrl:logo,emoji:S.mdata.emoji||"🫧"},S.modal==="edit_brand"?S.mdata.docId:null);S.brands=await loadBrands();set({modal:null,mdata:{}});toast("✅ บันทึกแบรนด์แล้ว");});
+    document.querySelectorAll(".sk-d").forEach(el=>el.addEventListener("click",()=>{const p=S.products.find(x=>x.docId===S.mdata.docId);const cur=Number(document.getElementById("f-stk")?.value)||p?.stock||0;document.getElementById("f-stk").value=Math.max(0,cur+Number(el.dataset.n));}));
+    document.getElementById("save-stk")?.addEventListener("click",async()=>{const p=S.products.find(x=>x.docId===S.mdata.docId);const nv=Number(document.getElementById("f-stk")?.value);if(isNaN(nv)||nv<0)return toast("จำนวนไม่ถูกต้องครับ","error");await saveProd({stock:nv},p.docId);S.products=await loadProducts();set({modal:null,mdata:{}});toast("📦 อัปเดตสต็อกแล้ว");});
+  }
+
+  function bindConfirm(){document.getElementById("c-cancel")?.addEventListener("click",()=>set({confirm:null}));document.getElementById("c-ok")?.addEventListener("click",()=>S.confirm?.onOk?.());}
+
+  // ══ INIT ══
+  async function init(){
+    set({view:"loading"});
+    try{
+      const auth=await checkAuth();
+      if(auth===true){await loadAll();set({view:"main"});}
+      else if(auth==="browser"){set({view:"browser"});}
+      else{set({view:"denied"});}
+    }catch(e){console.error(e);set({view:"browser"});}
+  }
+  init();
+</script>
+</body>
+</html>
