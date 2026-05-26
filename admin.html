@@ -6,7 +6,7 @@
   <title>HENG888 Admin</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
     :root{
       --bg:#0a0a0a;--bg2:#111111;--bg3:#1a1a1a;--bg4:#222222;--bg5:#2a2a2a;
@@ -15,12 +15,12 @@
       --gold:#d4a847;--gold2:#f0c860;--gold-bg:rgba(212,168,71,0.10);--gold-bd:rgba(212,168,71,0.25);
       --red:#e05555;--red-bg:rgba(224,85,85,0.10);
       --green:#4caf7d;--grn-bg:rgba(76,175,125,0.10);
-      --orange:#e08c30;--font:'Prompt',sans-serif;--r:12px;--r-lg:18px;
+      --orange:#e08c30;--font:'Sarabun',sans-serif;--r:12px;--r-lg:18px;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
     html,body{background:var(--bg);overscroll-behavior:none;min-height:100vh;}
-    body{font-family:var(--font);color:var(--text);-webkit-font-smoothing:antialiased;}
-    img{display:block;}button{font-family:var(--font);cursor:pointer;}
+    body{font-family:'Sarabun',sans-serif;color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.7;}
+    img{display:block;}button{font-family:'Sarabun',sans-serif;cursor:pointer;}
 
     @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
     @keyframes spin{to{transform:rotate(360deg)}}
@@ -44,7 +44,7 @@
 
     /* ── TABS ── */
     .tabs{background:var(--bg2);border-bottom:2px solid var(--border);display:flex;position:sticky;top:53px;z-index:99;box-shadow:0 4px 12px rgba(0,0,0,.3);}
-    .tab{flex:1;padding:13px 4px 11px;border:none;background:transparent;font-family:var(--font);font-size:10px;font-weight:600;cursor:pointer;color:var(--text3);border-bottom:3px solid transparent;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px;}
+    .tab{flex:1;padding:13px 4px 11px;border:none;background:transparent;font-family:'Sarabun',sans-serif;font-size:10px;font-weight:600;cursor:pointer;color:var(--text3);border-bottom:3px solid transparent;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px;}
     .tab-icon{font-size:19px;}
     .tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(212,168,71,.05);}
     .tab:active{transform:scale(.95);}
@@ -55,7 +55,7 @@
     /* ── CARDS / BUTTONS ── */
     .card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
     .card-title{font-size:14px;font-weight:700;color:var(--text);}
-    .btn{border:none;border-radius:var(--r);padding:9px 16px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:opacity .15s,transform .1s;}
+    .btn{border:none;border-radius:var(--r);padding:9px 16px;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:opacity .15s,transform .1s;}
     .btn:active{transform:scale(.95);}
     .btn-gold{background:var(--gold);color:#0a0a0a;}
     .btn-gold:hover{background:var(--gold2);}
@@ -101,7 +101,7 @@
     /* ── TRACKING BOX ── */
     .tracking-box{margin-top:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;}
     .tracking-lbl{font-size:10px;font-weight:600;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
-    .tracking-inp{width:100%;background:var(--bg4);border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-family:var(--font);font-size:13px;color:var(--text);outline:none;transition:border-color .2s;margin-bottom:8px;}
+    .tracking-inp{width:100%;background:var(--bg4);border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Sarabun',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .2s;margin-bottom:8px;}
     .tracking-inp:focus{border-color:var(--gold-bd);}
     .tracking-inp::placeholder{color:var(--text3);}
     .tracking-sent{font-size:12px;color:var(--green);display:flex;align-items:center;gap:6px;margin-top:4px;}
@@ -109,7 +109,7 @@
     /* ── BRAND / PRODUCT / STATS (superadmin only) ── */
     .form-group{margin-bottom:14px;}
     .form-label{display:block;font-size:11px;font-weight:600;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;}
-    .form-input{width:100%;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--r);padding:11px 13px;font-family:var(--font);font-size:14px;color:var(--text);outline:none;transition:border-color .2s;}
+    .form-input{width:100%;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--r);padding:11px 13px;font-family:'Sarabun',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .2s;}
     .form-input:focus{border-color:var(--gold-bd);}
     .form-input::placeholder{color:var(--text3);}
     .form-textarea{resize:vertical;min-height:76px;line-height:1.6;}
@@ -197,7 +197,7 @@
   const FC={apiKey:"AIzaSyDJ8zikwztSXFHlP_Wh2yD0dkerM-8774U",authDomain:"heng888-c53cf.firebaseapp.com",projectId:"heng888-c53cf",storageBucket:"heng888-c53cf.firebasestorage.app",messagingSenderId:"644962406547",appId:"1:644962406547:web:e008bcb4042e574eb7d473"};
   const SHOP="shop_001";
   // ✅ superadmin hardcode — เห็นทุกอย่าง
-  const SUPERADMIN_IDS=["7234688831"];
+  const SUPERADMIN_IDS=["7234688831","8314802999"];
   const BOT="8869386184:AAHopsdsjU9kLdpyq55UJG3acCx8TDhdwA4";
 
   const app=initializeApp(FC);const db=getFirestore(app);
@@ -242,14 +242,24 @@
   async function delBrand(docId){await deleteDoc(doc(db,"shops",SHOP,"brands",docId));}
   async function updateOrder(docId,status){await updateDoc(doc(db,"orders",docId),{status});}
 
-  function cropCompress(file,size=600,quality=0.78){return new Promise((res,rej)=>{const r=new FileReader();r.onerror=rej;r.onload=ev=>{const img=new Image();img.onerror=rej;img.onload=()=>{try{const s=Math.min(img.width,img.height);const sx=(img.width-s)/2;const sy=(img.height-s)/2;const c=document.createElement("canvas");c.width=size;c.height=size;const ctx=c.getContext("2d");ctx.fillStyle="#0a0a0a";ctx.fillRect(0,0,size,size);ctx.drawImage(img,sx,sy,s,s,0,0,size,size);const b64=c.toDataURL("image/jpeg",quality);res(b64.length*0.75>200*1024?c.toDataURL("image/jpeg",0.6):b64);}catch(e){rej(e);}};img.src=ev.target.result;};r.readAsDataURL(file);});}
+  // ── บัญชีธนาคาร — superadmin แก้ได้ ──
+  async function loadBank(){
+    try{
+      const snap=await getDoc(doc(db,"settings","bank"));
+      if(snap.exists()) return snap.data();
+    }catch{}
+    return {bankName:"กสิกรไทย",accountNumber:"123-4-56789-0",accountHolder:"HENG888 CO., LTD."};
+  }
+  async function saveBank(data){
+    await setDoc(doc(db,"settings","bank"),{...data,updatedAt:serverTimestamp()},{merge:true});
+  }(file,size=600,quality=0.78){return new Promise((res,rej)=>{const r=new FileReader();r.onerror=rej;r.onload=ev=>{const img=new Image();img.onerror=rej;img.onload=()=>{try{const s=Math.min(img.width,img.height);const sx=(img.width-s)/2;const sy=(img.height-s)/2;const c=document.createElement("canvas");c.width=size;c.height=size;const ctx=c.getContext("2d");ctx.fillStyle="#0a0a0a";ctx.fillRect(0,0,size,size);ctx.drawImage(img,sx,sy,s,s,0,0,size,size);const b64=c.toDataURL("image/jpeg",quality);res(b64.length*0.75>200*1024?c.toDataURL("image/jpeg",0.6):b64);}catch(e){rej(e);}};img.src=ev.target.result;};r.readAsDataURL(file);});}
 
   let toastT=null;
   function toast(msg,type="success"){document.querySelector(".toast")?.remove();if(toastT)clearTimeout(toastT);const t=document.createElement("div");t.className="toast";t.textContent=msg;t.style.background=type==="success"?"#d4a847":type==="error"?"#e05555":"#e08c30";t.style.color=type==="success"?"#0a0a0a":"#fff";document.body.appendChild(t);toastT=setTimeout(()=>t.remove(),2500);}
 
-  let S={view:"loading",tab:"orders",brands:[],products:[],orders:[],modal:null,mdata:{},confirm:null};
+  let S={view:"loading",tab:"orders",brands:[],products:[],orders:[],bank:{},modal:null,mdata:{},confirm:null};
   const set=p=>{S={...S,...p};render();};
-  async function loadAll(){const[b,p,o]=await Promise.all([loadBrands(),loadProducts(),loadOrders()]);S.brands=b;S.products=p;S.orders=o;}
+  async function loadAll(){const[b,p,o,bk]=await Promise.all([loadBrands(),loadProducts(),loadOrders(),loadBank()]);S.brands=b;S.products=p;S.orders=o;S.bank=bk;}
 
   // ══════════════════════════════════════════
   //  RENDER
@@ -265,7 +275,8 @@
       <button class="tab ${S.tab==="orders"?"active":""}" data-tab="orders"><span class="tab-icon">📋</span><span>ออเดอร์</span></button>
       <button class="tab ${S.tab==="brands"?"active":""}" data-tab="brands"><span class="tab-icon">🏷️</span><span>แบรนด์</span></button>
       <button class="tab ${S.tab==="products"?"active":""}" data-tab="products"><span class="tab-icon">📦</span><span>สินค้า</span></button>
-      <button class="tab ${S.tab==="stats"?"active":""}" data-tab="stats"><span class="tab-icon">📊</span><span>ภาพรวม</span></button>`
+      <button class="tab ${S.tab==="stats"?"active":""}" data-tab="stats"><span class="tab-icon">📊</span><span>ภาพรวม</span></button>
+      <button class="tab ${S.tab==="settings"?"active":""}" data-tab="settings"><span class="tab-icon">⚙️</span><span>ตั้งค่า</span></button>`
     :`<button class="tab active" data-tab="orders"><span class="tab-icon">📋</span><span>ออเดอร์</span></button>`;
 
     let content="";
@@ -273,6 +284,7 @@
     else if(S.tab==="brands"&&isSuperAdmin())content=tabBrands();
     else if(S.tab==="products"&&isSuperAdmin())content=tabProds();
     else if(S.tab==="stats"&&isSuperAdmin())content=tabStats();
+    else if(S.tab==="settings"&&isSuperAdmin())content=tabSettings();
 
     r.innerHTML=`
       <div class="header">
@@ -348,7 +360,18 @@
           <div class="order-meta-row"><span class="order-meta-ico">📞</span><span class="order-meta-val">${o.phone||"-"}</span></div>
           <div class="order-meta-row"><span class="order-meta-ico">🏠</span><span class="order-meta-val">${o.address||"-"}</span></div>
           ${o.note?`<div class="order-meta-row"><span class="order-meta-ico">💬</span><span class="order-meta-val">${o.note}</span></div>`:""}
-          ${o.location?`<div class="order-meta-row"><span class="order-meta-ico">🗺️</span><span class="order-meta-val"><a href="https://maps.google.com/?q=${o.location.lat||o.location},${o.location.lng||""}" target="_blank" style="color:var(--gold)">ดูแผนที่</a></span></div>`:""}
+          ${o.location?`
+          <div class="order-meta-row"><span class="order-meta-ico">📍</span><span class="order-meta-val">${o.location.lat?.toFixed(5)||"-"}, ${o.location.lng?.toFixed(5)||""}</span></div>
+          <div style="margin-top:8px;border-radius:10px;overflow:hidden;border:1px solid var(--border);">
+            <iframe
+              src="https://maps.google.com/maps?q=${o.location.lat||o.location},${o.location.lng||""}&z=16&output=embed"
+              width="100%" height="180" style="border:none;display:block;" loading="lazy" allowfullscreen>
+            </iframe>
+          </div>
+          <div style="margin-top:6px;">
+            <a href="https://maps.google.com/?q=${o.location.lat},${o.location.lng}" target="_blank"
+               style="font-size:12px;color:var(--gold);text-decoration:none;">🔗 เปิดใน Google Maps</a>
+          </div>`:""}
         </div>
 
         <div class="order-section">
@@ -385,6 +408,80 @@
     const conf=S.orders.filter(o=>o.status==="ยืนยันแล้ว").length;
     const rev=S.orders.filter(o=>o.status==="ยืนยันแล้ว").reduce((s,o)=>s+(o.total||0),0);
     return`<div class="stat-grid">${[["📦",S.products.length,"SKU ทั้งหมด"],["✅",active,"SKU แสดง"],["⚠️",low+" รายการ","สต็อกต่ำ"],["💰",fmt(val),"มูลค่าสต็อก"],["📋",S.orders.length,"ออเดอร์"],["🎉",conf,"ยืนยันแล้ว"],["💵",fmt(rev),"ยอดขาย COD"],["🏷️",S.brands.length,"แบรนด์"]].map(([e,v,l])=>`<div class="stat-card"><div class="stat-ico">${e}</div><div class="stat-val">${v}</div><div class="stat-lbl">${l}</div></div>`).join("")}</div>`;
+  }
+
+  // ══════════════════════════════════════════
+  //  TAB: SETTINGS — superadmin เท่านั้น
+  //  แก้ไขบัญชีธนาคารที่ลูกค้าโอนเงินมา
+  // ══════════════════════════════════════════
+  function tabSettings(){
+    const bk=S.bank||{};
+    const bankOptions=[
+      {code:"kbank",name:"กสิกรไทย",icon:"🟢"},
+      {code:"scb",name:"ไทยพาณิชย์",icon:"🟣"},
+      {code:"bbl",name:"กรุงเทพ",icon:"🔵"},
+      {code:"ktb",name:"กรุงไทย",icon:"🔷"},
+      {code:"bay",name:"กรุงศรีอยุธยา",icon:"🟡"},
+      {code:"ttb",name:"ทหารไทยธนชาต",icon:"⚡"},
+      {code:"gsb",name:"ออมสิน",icon:"🌸"},
+      {code:"baac",name:"ธ.ก.ส.",icon:"🌾"},
+      {code:"promptpay",name:"พร้อมเพย์",icon:"💳"},
+    ].map(b=>`<option value="${b.name}" ${bk.bankName===b.name?"selected":""}>${b.icon} ${b.name}</option>`).join("");
+
+    return`
+    <div style="display:flex;flex-direction:column;gap:14px;">
+
+      <!-- ── current bank display ── -->
+      <div style="background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:var(--r-lg);padding:18px 20px;">
+        <div style="font-size:10px;font-weight:600;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">บัญชีที่ใช้งานอยู่</div>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="font-size:36px;">🏦</div>
+          <div>
+            <div style="font-size:16px;font-weight:700;color:var(--text);">${bk.bankName||"-"}</div>
+            <div style="font-size:22px;font-weight:800;color:var(--gold);letter-spacing:1px;margin:4px 0;">${bk.accountNumber||"-"}</div>
+            <div style="font-size:12px;color:var(--text3);">${bk.accountHolder||"-"}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── edit form ── -->
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 20px;">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:16px;">✏️ แก้ไขข้อมูลบัญชี</div>
+
+        <div class="form-group">
+          <label class="form-label">ธนาคาร</label>
+          <select class="form-input form-select" id="s-bank-name">
+            ${bankOptions}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">เลขบัญชี</label>
+          <input class="form-input" id="s-acc-num"
+            placeholder="เช่น 123-4-56789-0"
+            value="${bk.accountNumber||""}"
+            type="text" inputmode="numeric"/>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">ชื่อบัญชี</label>
+          <input class="form-input" id="s-acc-holder"
+            placeholder="เช่น HENG888 CO., LTD."
+            value="${bk.accountHolder||""}"/>
+        </div>
+
+        <button class="btn btn-gold btn-full" id="save-bank-btn" style="margin-top:6px;">
+          💾 บันทึกข้อมูลบัญชี
+        </button>
+      </div>
+
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 18px;">
+        <div style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;margin-bottom:6px;">หมายเหตุ</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7;">
+          ข้อมูลบัญชีนี้จะแสดงในหน้าชำระเงินของลูกค้าทันที ไม่ต้องแก้โค้ด
+        </div>
+      </div>
+    </div>`;
   }
 
   // ══ MODAL ══
@@ -429,6 +526,24 @@
       // ยืนยัน/ปฏิเสธ — superadmin เท่านั้น
       document.querySelectorAll("[data-co]").forEach(el=>el.addEventListener("click",async()=>{await updateOrder(el.dataset.co,"ยืนยันแล้ว");S.orders=await loadOrders();set({});toast("✅ ยืนยันออเดอร์แล้ว");}));
       document.querySelectorAll("[data-ro]").forEach(el=>el.addEventListener("click",async()=>{await updateOrder(el.dataset.ro,"ปฏิเสธ");S.orders=await loadOrders();set({});toast("❌ ปฏิเสธออเดอร์แล้ว","error");}));
+      // ✅ บันทึกบัญชีธนาคาร — superadmin เท่านั้น
+      document.getElementById("save-bank-btn")?.addEventListener("click",async()=>{
+        const bankName=document.getElementById("s-bank-name")?.value.trim();
+        const accountNumber=document.getElementById("s-acc-num")?.value.trim();
+        const accountHolder=document.getElementById("s-acc-holder")?.value.trim();
+        if(!bankName||!accountNumber||!accountHolder)return toast("กรุณากรอกข้อมูลให้ครบครับ","error");
+        const btn=document.getElementById("save-bank-btn");
+        btn.disabled=true;btn.textContent="⏳ กำลังบันทึก...";
+        try{
+          await saveBank({bankName,accountNumber,accountHolder});
+          S.bank={bankName,accountNumber,accountHolder};
+          toast("✅ บันทึกข้อมูลบัญชีแล้วค่ะ — ลูกค้าจะเห็นทันที");
+          set({tab:"settings"});
+        }catch(e){
+          btn.disabled=false;btn.textContent="💾 บันทึกข้อมูลบัญชี";
+          toast("บันทึกไม่สำเร็จ: "+e.message,"error");
+        }
+      });
     }
     // ส่งลิงก์ tracking — ทั้ง superadmin และ admin ทำได้ (หลัง superadmin ยืนยันแล้ว)
     document.querySelectorAll("[data-send-trk]").forEach(el=>el.addEventListener("click",async()=>{
