@@ -214,8 +214,27 @@
   const tg=window.Telegram?.WebApp;const U=tg?.initDataUnsafe?.user||null;
   if(tg)tg.expand();
 
-  const ADMIN_IDS=["7234688831","6960141528"];
-  function checkAdmin(){return U?ADMIN_IDS.includes(String(U.id)):false;}
+  const SUPERADMIN_IDS=["7234688831"];
+  const ADMIN_IDS_HARDCODE=["6960141528"]; // admin hardcode
+
+  // ── ตรวจ Role ──
+  function isSuperAdminUser(){return U?SUPERADMIN_IDS.includes(String(U.id)):false;}
+
+  async function checkRole(){
+    if(!U) return "guest";
+    const cid=String(U.id);
+    if(SUPERADMIN_IDS.includes(cid)) return "superadmin";
+    if(ADMIN_IDS_HARDCODE.includes(cid)) return "admin";
+    // เช็ค Firestore
+    try{
+      const snap=await Promise.race([
+        getDoc(doc(db,"admins",cid)),
+        new Promise(r=>setTimeout(()=>r(null),3000))
+      ]);
+      if(snap?.exists?.()&&snap.data().active) return snap.data().role||"admin";
+    }catch{}
+    return "customer";
+  }
 
   const fmt=n=>"฿"+Number(n).toLocaleString("th-TH");
   const tot=(cart,ps)=>cart.reduce((s,i)=>{const p=ps.find(x=>x.id===i.id);return s+(p?p.price*i.qty:0);},0);
@@ -460,32 +479,17 @@
   async function init(){
     render(); // แสดง splash ก่อน
 
-    // ── ถ้าเป็น admin → redirect ──
-    if(checkAdmin()){
-      document.getElementById("root").innerHTML=`
-        <div class="splash">
-          <div class="sp-logo">HENG<span>888</span></div>
-          <div class="sp-line"></div>
-          <div class="sp-tag">Admin Panel</div>
-          <div class="sp-dots">
-            <div class="sp-dot"></div><div class="sp-dot"></div><div class="sp-dot"></div>
-          </div>
-        </div>`;
-      setTimeout(()=>{
-        try{
-          if(window.Telegram?.WebApp?.openLink){
-            window.Telegram.WebApp.openLink("https://shop-th.github.io/HENG888/admin.html");
-          }else{
-            window.location.href="https://shop-th.github.io/HENG888/admin.html";
-          }
-        }catch{
-          window.location.href="https://shop-th.github.io/HENG888/admin.html";
-        }
-      },1200);
+    // ── ตรวจ Role ──
+    const role = await checkRole();
+
+    // superadmin และ admin → redirect ไป admin.html ในหน้าต่างเดิม
+    // window.location.replace ทำงานใน Telegram WebApp และส่ง Telegram context ไปด้วย
+    if(role === "superadmin" || role === "admin"){
+      window.location.replace("https://shop-th.github.io/HENG888/admin.html");
       return;
     }
 
-    // ── โหลดข้อมูลร้าน (แยกแต่ละ call ไม่ให้ error หนึ่งทำลายทั้งหมด) ──
+    // ── customer → โหลดร้านค้า ──
     try{
       const [brands, products] = await Promise.all([fBr(), fPr()]);
       S.brands = brands;
@@ -494,18 +498,15 @@
       console.error("loadBrands/Products error:", e);
     }
 
-    // loadBank แยกต่างหาก — ไม่ให้ block หน้าร้านถ้า Firestore settings ยังไม่มี
     try{
       await loadBank();
     }catch(e){
-      console.warn("loadBank error (ใช้ค่า default):", e);
+      console.warn("loadBank error:", e);
     }
 
-    // track user (ไม่ block)
     track().catch(()=>{});
 
-    // แสดงหน้าหลัก
-    setTimeout(()=>set({screen:"home"}), S.brands.length>0?0:2400);
+    setTimeout(()=>set({screen:"home"}), S.brands.length>0?0:2000);
   }
 
   init();
