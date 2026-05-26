@@ -208,7 +208,7 @@
   const tg=window.Telegram?.WebApp;const U=tg?.initDataUnsafe?.user||null;
   if(tg)tg.expand();
 
-  const ADMIN_IDS=["7234688831","6960141528"];
+  const ADMIN_IDS=["7234688831","7234688831"];
   function checkAdmin(){return U?ADMIN_IDS.includes(String(U.id)):false;}
 
   const fmt=n=>"฿"+Number(n).toLocaleString("th-TH");
@@ -452,44 +452,56 @@
 
   /* ── INIT ── */
   async function init(){
-    render();
+    render(); // แสดง splash ก่อน
+
+    // ── ถ้าเป็น admin → redirect ──
     if(checkAdmin()){
-      // ✅ ใช้ tg.openLink แทน window.location.href
-      // เพื่อให้ Telegram WebApp เปิดหน้า admin พร้อม initData ครบถ้วน
       document.getElementById("root").innerHTML=`
         <div class="splash">
           <div class="sp-logo">HENG<span>888</span></div>
           <div class="sp-line"></div>
           <div class="sp-tag">Admin Panel</div>
           <div class="sp-dots">
-            <div class="sp-dot"></div>
-            <div class="sp-dot"></div>
-            <div class="sp-dot"></div>
-          </div>
-          <div style="margin-top:32px;">
-            <button onclick="window.Telegram.WebApp.openLink('https://shop-th.github.io/HENG888/admin.html')"
-              style="background:var(--gold);color:#ffffff;border:none;border-radius:12px;padding:14px 28px;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;cursor:pointer;">
-              <i class="ti ti-settings" aria-hidden="true"></i> เปิด Admin Panel
-            </button>
+            <div class="sp-dot"></div><div class="sp-dot"></div><div class="sp-dot"></div>
           </div>
         </div>`;
-      // fallback: ถ้า tg.openLink ไม่ทำงาน ให้ redirect หลัง 3 วิ
       setTimeout(()=>{
         try{
           if(window.Telegram?.WebApp?.openLink){
             window.Telegram.WebApp.openLink("https://shop-th.github.io/HENG888/admin.html");
-          } else {
+          }else{
             window.location.href="https://shop-th.github.io/HENG888/admin.html";
           }
         }catch{
           window.location.href="https://shop-th.github.io/HENG888/admin.html";
         }
-      },2000);
+      },1200);
       return;
     }
-    try{const[b,p]=await Promise.all([fBr(),fPr(),loadBank()]);S.brands=b;S.products=p;track();}catch(e){console.error(e);}
-    setTimeout(()=>set({screen:"home"}),2400);
+
+    // ── โหลดข้อมูลร้าน (แยกแต่ละ call ไม่ให้ error หนึ่งทำลายทั้งหมด) ──
+    try{
+      const [brands, products] = await Promise.all([fBr(), fPr()]);
+      S.brands = brands;
+      S.products = products;
+    }catch(e){
+      console.error("loadBrands/Products error:", e);
+    }
+
+    // loadBank แยกต่างหาก — ไม่ให้ block หน้าร้านถ้า Firestore settings ยังไม่มี
+    try{
+      await loadBank();
+    }catch(e){
+      console.warn("loadBank error (ใช้ค่า default):", e);
+    }
+
+    // track user (ไม่ block)
+    track().catch(()=>{});
+
+    // แสดงหน้าหลัก
+    setTimeout(()=>set({screen:"home"}), S.brands.length>0?0:2400);
   }
+
   init();
 </script>
 </body>
