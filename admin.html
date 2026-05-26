@@ -349,11 +349,16 @@
       r.onload=ev=>{
         const img=new Image();img.onerror=rej;
         img.onload=()=>{
+          // ✅ 300×300px PNG — คมชัด ไม่แตก เหมาะสำหรับโลโก้ธนาคาร
+          const size=300;
           const sq=Math.min(img.width,img.height);
           const sx=(img.width-sq)/2,sy=(img.height-sq)/2;
-          const c=document.createElement("canvas");c.width=64;c.height=64;
+          const c=document.createElement("canvas");c.width=size;c.height=size;
           const ctx=c.getContext("2d");
-          ctx.drawImage(img,sx,sy,sq,sq,0,0,64,64);
+          // พื้นหลังโปร่งใส (PNG รองรับ)
+          ctx.clearRect(0,0,size,size);
+          ctx.drawImage(img,sx,sy,sq,sq,0,0,size,size);
+          // PNG ไม่บีบอัด ไม่สูญเสียคุณภาพ
           res(c.toDataURL("image/png"));
         };img.src=ev.target.result;
       };r.readAsDataURL(file);
@@ -625,9 +630,26 @@
   function tabBrands(){
     const html=S.brands.map(b=>{
       const cnt=S.products.filter(p=>p.brand===b.key).length;
-      return'<div class="brand-admin"><div class="brand-admin-head"><div class="brand-admin-info"><div class="brand-logo-thumb">'+(b.logoUrl?'<img src="'+b.logoUrl+'" alt="'+b.name+'" onerror="this.style.display=\'none\'"/>':'<i class="ti ti-tag" style="font-size:22px;color:var(--text3);"></i>')+'</div><div><div class="brand-admin-name">'+b.name+'</div><div class="brand-admin-sub">'+cnt+' SKU · '+(b.desc||"")+'</div></div></div>'+
-        '<div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" data-eb="'+b.docId+'"><i class="ti ti-edit"></i> แก้ไข</button><button class="btn btn-red btn-sm" data-db="'+b.docId+'" data-dbn="'+b.name+'"><i class="ti ti-trash"></i></button></div></div>'+
-        '<div class="brand-admin-body">'+S.products.filter(p=>p.brand===b.key).slice(0,4).map(p=>'<span class="badge badge-gray">'+p.name+'</span>').join("")+(cnt>4?'<span class="badge badge-gold">+'+( cnt-4)+'</span>':"")+(cnt===0?'<span style="font-size:12px;color:var(--text3)">ยังไม่มีสินค้า</span>':"")+'</div></div>';
+      return'<div class="brand-admin" style="cursor:pointer;" data-eb="'+b.docId+'">'+
+        '<div class="brand-admin-head">'+
+          '<div class="brand-admin-info">'+
+            '<div class="brand-logo-thumb">'+(b.logoUrl?'<img src="'+b.logoUrl+'" alt="'+b.name+'" onerror="this.style.display=\'none\'"/>':'<i class="ti ti-tag" style="font-size:22px;color:var(--text3);"></i>')+'</div>'+
+            '<div>'+
+              '<div class="brand-admin-name">'+b.name+'</div>'+
+              '<div class="brand-admin-sub">'+cnt+' SKU · '+(b.desc||"กดเพื่อแก้ไข")+'</div>'+
+            '</div>'+
+          '</div>'+
+          '<div style="display:flex;align-items:center;gap:8px;">'+
+            '<i class="ti ti-chevron-right" style="font-size:18px;color:var(--text3);"></i>'+
+            '<button class="btn btn-red btn-sm" data-db="'+b.docId+'" data-dbn="'+b.name+'" onclick="event.stopPropagation()"><i class="ti ti-trash"></i></button>'+
+          '</div>'+
+        '</div>'+
+        '<div class="brand-admin-body">'+
+          S.products.filter(p=>p.brand===b.key).slice(0,4).map(p=>'<span class="badge badge-gray">'+p.name+'</span>').join("")+
+          (cnt>4?'<span class="badge badge-gold">+'+( cnt-4)+'</span>':"")+
+          (cnt===0?'<span style="font-size:12px;color:var(--text3)">ยังไม่มีสินค้า</span>':"")+
+        '</div>'+
+      '</div>';
     }).join("")||'<div class="empty"><i class="ti ti-tag-off" style="font-size:40px;margin-bottom:10px;display:block;"></i><div>ยังไม่มีแบรนด์ครับ</div></div>';
     return'<div class="card-head"><div class="card-title">แบรนด์ ('+S.brands.length+')</div><button class="btn btn-gold" id="add-brand"><i class="ti ti-plus"></i> เพิ่มแบรนด์</button></div>'+html;
   }
@@ -709,26 +731,43 @@
     const bk=S.bank||{};
     const opts=["กสิกรไทย","ไทยพาณิชย์","กรุงเทพ","กรุงไทย","กรุงศรีอยุธยา","ทหารไทยธนชาต","ออมสิน","ธ.ก.ส.","พร้อมเพย์"]
       .map(n=>'<option value="'+n+'" '+(bk.bankName===n?"selected":"")+'>'+n+'</option>').join("");
+
+    // preview โลโก้ขนาด 64px แต่ไฟล์จริงเก็บ 300px เพื่อความคมชัด
     const logoBox=bk.logoUrl?
-      '<div style="position:relative;width:64px;height:64px;"><img id="bank-logo-preview" src="'+bk.logoUrl+'" style="width:64px;height:64px;border-radius:var(--r);object-fit:cover;border:1px solid var(--border);"/><button style="position:absolute;inset:0;background:rgba(0,0,0,.55);border-radius:var(--r);border:none;color:#fff;font-size:11px;cursor:pointer;" onclick="document.getElementById(\'s-bank-logo-file\').click()">เปลี่ยน</button></div><div style="font-size:11px;color:var(--green);margin-top:4px;"><i class="ti ti-circle-check"></i> Base64 64×64px</div>':
-      '<div class="logo-upload-zone" onclick="document.getElementById(\'s-bank-logo-file\').click()"><div class="logo-upload-ico"><i class="ti ti-building-bank" style="font-size:28px;"></i></div><div class="logo-upload-txt">อัปโหลดโลโก้ธนาคาร</div><div class="logo-upload-hint">Crop 1:1 · Base64 64×64px</div></div>';
+      '<div style="display:flex;align-items:center;gap:12px;">'+
+        '<div style="position:relative;width:72px;height:72px;flex-shrink:0;">'+
+          '<img id="bank-logo-preview" src="'+bk.logoUrl+'" style="width:72px;height:72px;border-radius:var(--r);object-fit:contain;border:1px solid var(--border);background:var(--bg4);"/>'+
+          '<button style="position:absolute;inset:0;background:rgba(0,0,0,.6);border-radius:var(--r);border:none;color:#fff;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;" onclick="document.getElementById(\'s-bank-logo-file\').click()"><i class="ti ti-camera" style="font-size:14px;"></i>เปลี่ยน</button>'+
+        '</div>'+
+        '<div>'+
+          '<div style="font-size:12px;color:var(--green);display:flex;align-items:center;gap:4px;margin-bottom:4px;"><i class="ti ti-circle-check"></i> อัปโหลดแล้ว</div>'+
+          '<div style="font-size:11px;color:var(--text3);">300×300px PNG · คมชัด</div>'+
+          '<button class="btn btn-red btn-sm" style="margin-top:6px;font-size:11px;padding:4px 10px;" onclick="document.getElementById(\'s-bank-logo\').value=\'\';document.getElementById(\'bank-logo-wrap\').innerHTML=\'<div class=&quot;logo-upload-zone&quot; onclick=&quot;document.getElementById(\\\'s-bank-logo-file\\\').click()&quot;><div class=&quot;logo-upload-ico&quot;><i class=&quot;ti ti-building-bank&quot; style=&quot;font-size:28px;&quot;></i></div><div class=&quot;logo-upload-txt&quot;>อัปโหลดโลโก้ธนาคาร</div><div class=&quot;logo-upload-hint&quot;>PNG 300×300px คมชัด</div></div>\';"><i class="ti ti-trash"></i> ลบรูป</button>'+
+        '</div>'+
+      '</div>':
+      '<div class="logo-upload-zone" onclick="document.getElementById(\'s-bank-logo-file\').click()">'+
+        '<div class="logo-upload-ico"><i class="ti ti-building-bank" style="font-size:32px;"></i></div>'+
+        '<div class="logo-upload-txt">อัปโหลดโลโก้ธนาคาร</div>'+
+        '<div class="logo-upload-hint">PNG · 300×300px · คมชัดไม่แตก</div>'+
+      '</div>';
+
     return'<div style="display:flex;flex-direction:column;gap:14px;">'+
       '<div style="background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:var(--r-lg);padding:18px 20px;">'+
         '<div style="font-size:10px;font-weight:600;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">บัญชีที่ใช้งานอยู่</div>'+
         '<div style="display:flex;align-items:center;gap:14px;">'+
-          '<div style="width:64px;height:64px;border-radius:var(--r);overflow:hidden;flex-shrink:0;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;">'+(bk.logoUrl?'<img src="'+bk.logoUrl+'" style="width:100%;height:100%;object-fit:cover;" alt="logo"/>':'<i class="ti ti-building-bank" style="font-size:24px;color:var(--text3);"></i>')+'</div>'+
-          '<div><div style="font-size:16px;font-weight:700;color:var(--text);">'+(bk.bankName||"-")+'</div><div style="font-size:20px;font-weight:700;color:var(--gold);margin:4px 0;">'+(bk.accountNumber||"-")+'</div><div style="font-size:12px;color:var(--text3);">'+(bk.accountHolder||"-")+'</div></div>'+
+          '<div style="width:56px;height:56px;border-radius:var(--r);overflow:hidden;flex-shrink:0;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;">'+(bk.logoUrl?'<img src="'+bk.logoUrl+'" style="width:100%;height:100%;object-fit:contain;" alt="logo"/>':'<i class="ti ti-building-bank" style="font-size:24px;color:var(--text3);"></i>')+'</div>'+
+          '<div><div style="font-size:16px;font-weight:700;color:#ffffff;">'+(bk.bankName||"-")+'</div><div style="font-size:20px;font-weight:700;color:var(--gold);margin:4px 0;">'+(bk.accountNumber||"-")+'</div><div style="font-size:12px;color:var(--text3);">'+(bk.accountHolder||"-")+'</div></div>'+
         '</div>'+
       '</div>'+
       '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 20px;">'+
-        '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;"><i class="ti ti-edit"></i> แก้ไขข้อมูลบัญชี</div>'+
-        '<div class="form-group"><label class="form-label">โลโก้ธนาคาร (Base64 64×64)</label><div id="bank-logo-wrap">'+logoBox+'</div><input type="file" id="s-bank-logo-file" accept="image/*" style="display:none"/><input type="hidden" id="s-bank-logo" value="'+(bk.logoUrl||"")+'"/></div>'+
+        '<div style="font-size:13px;font-weight:700;color:var(--gold2);margin-bottom:16px;display:flex;align-items:center;gap:8px;"><i class="ti ti-edit"></i> แก้ไขข้อมูลบัญชี</div>'+
+        '<div class="form-group"><label class="form-label">โลโก้ธนาคาร</label><div id="bank-logo-wrap">'+logoBox+'</div><input type="file" id="s-bank-logo-file" accept="image/png,image/jpeg,image/webp" style="display:none"/><input type="hidden" id="s-bank-logo" value="'+(bk.logoUrl||"")+'"/></div>'+
         '<div class="form-group"><label class="form-label">ธนาคาร</label><select class="form-input form-select" id="s-bank-name">'+opts+'</select></div>'+
         '<div class="form-group"><label class="form-label">เลขบัญชี</label><input class="form-input" id="s-acc-num" placeholder="เช่น 123-4-56789-0" value="'+(bk.accountNumber||"")+'"/></div>'+
         '<div class="form-group"><label class="form-label">ชื่อบัญชี</label><input class="form-input" id="s-acc-holder" placeholder="เช่น HENG888 CO., LTD." value="'+(bk.accountHolder||"")+'"/></div>'+
         '<button class="btn btn-gold btn-full" id="save-bank-btn"><i class="ti ti-device-floppy"></i> บันทึกข้อมูลบัญชี</button>'+
       '</div>'+
-      '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 18px;font-size:13px;color:var(--text2);">ข้อมูลบัญชีและโลโก้จะแสดงในหน้าชำระเงินของลูกค้าทันที ไม่ต้องแก้โค้ด</div>'+
+      '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 18px;font-size:13px;color:var(--text2);">ข้อมูลบัญชีและโลโก้จะแสดงในหน้าชำระเงินของลูกค้าทันที</div>'+
     '</div>';
   }
 
@@ -828,8 +867,17 @@
       document.querySelectorAll("[data-sp]").forEach(el=>el.addEventListener("click",()=>set({modal:"stock",mdata:{docId:el.dataset.sp}})));
       document.querySelectorAll("[data-tp]").forEach(el=>el.addEventListener("click",async()=>{const p=S.products.find(x=>x.docId===el.dataset.tp);await saveProd({active:!p.active},p.docId);S.products=await loadProducts();set({});toast(p.active?"ซ่อนสินค้าแล้ว":"แสดงสินค้าแล้ว");}));
       document.querySelectorAll("[data-dp]").forEach(el=>el.addEventListener("click",()=>set({confirm:{title:"ลบสินค้า?",desc:'"'+el.dataset.dn+'"\nไม่สามารถกู้คืนได้',ok:"ลบ",onOk:async()=>{await delProd(el.dataset.dp);S.products=await loadProducts();set({confirm:null});toast("ลบสินค้าแล้ว","error");}}})));
-      document.querySelectorAll("[data-eb]").forEach(el=>el.addEventListener("click",()=>{const b=S.brands.find(x=>x.docId===el.dataset.eb);set({modal:"edit_brand",mdata:{...b}});}));
-      document.querySelectorAll("[data-db]").forEach(el=>el.addEventListener("click",()=>set({confirm:{title:"ลบแบรนด์?",desc:'"'+el.dataset.dbn+'"\nสินค้าในแบรนด์จะยังอยู่',ok:"ลบ",onOk:async()=>{await delBrand(el.dataset.db);S.brands=await loadBrands();set({confirm:null});toast("ลบแบรนด์แล้ว","error");}}})));
+      // ── กดทั้ง brand card → เปิด edit modal ──
+      document.querySelectorAll(".brand-admin[data-eb]").forEach(el=>el.addEventListener("click",e=>{
+        // ถ้ากดปุ่มลบ ไม่เปิด modal
+        if(e.target.closest("[data-db]")) return;
+        const b=S.brands.find(x=>x.docId===el.dataset.eb);
+        if(b) set({modal:"edit_brand",mdata:{...b}});
+      }));
+      document.querySelectorAll("[data-db]").forEach(el=>el.addEventListener("click",e=>{
+        e.stopPropagation();
+        set({confirm:{title:"ลบแบรนด์?",desc:'"'+el.dataset.dbn+'"\nสินค้าในแบรนด์จะยังอยู่',ok:"ลบ",onOk:async()=>{await delBrand(el.dataset.db);S.brands=await loadBrands();set({confirm:null});toast("ลบแบรนด์แล้ว","error");}}});
+      }));
       document.querySelectorAll("[data-co]").forEach(el=>el.addEventListener("click",async()=>{
         await updateDoc(doc(db,"orders",el.dataset.co),{status:"ยืนยันแล้ว",confirmedAt:serverTimestamp()});
         S.orders=await loadOrders();
@@ -862,8 +910,28 @@
           const b64=await cropCompressBank(f);
           document.getElementById("s-bank-logo").value=b64;
           const wrap=document.getElementById("bank-logo-wrap");
-          wrap.innerHTML='<div style="position:relative;width:64px;height:64px;"><img id="bank-logo-preview" src="'+b64+'" style="width:64px;height:64px;border-radius:var(--r);object-fit:cover;border:1px solid var(--border);"/><button style="position:absolute;inset:0;background:rgba(0,0,0,.55);border-radius:var(--r);border:none;color:#fff;font-size:11px;cursor:pointer;" onclick="document.getElementById(\'s-bank-logo-file\').click()">เปลี่ยน</button></div><div style="font-size:11px;color:var(--green);margin-top:4px;"><i class="ti ti-circle-check"></i> Base64 64×64px</div><input type="file" id="s-bank-logo-file" accept="image/*" style="display:none"/><input type="hidden" id="s-bank-logo" value="'+b64+'"/>';
-          toast("อัปโหลดโลโก้แล้วค่ะ (Base64 64×64px)");
+          wrap.innerHTML=
+            '<div style="display:flex;align-items:center;gap:12px;">'+
+              '<div style="position:relative;width:72px;height:72px;flex-shrink:0;">'+
+                '<img id="bank-logo-preview" src="'+b64+'" style="width:72px;height:72px;border-radius:var(--r);object-fit:contain;border:1px solid var(--border);background:var(--bg4);"/>'+
+                '<button style="position:absolute;inset:0;background:rgba(0,0,0,.6);border-radius:var(--r);border:none;color:#fff;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;" onclick="document.getElementById(\'s-bank-logo-file\').click()"><i class="ti ti-camera" style="font-size:14px;"></i>เปลี่ยน</button>'+
+              '</div>'+
+              '<div>'+
+                '<div style="font-size:12px;color:var(--green);display:flex;align-items:center;gap:4px;margin-bottom:4px;"><i class="ti ti-circle-check"></i> อัปโหลดแล้ว</div>'+
+                '<div style="font-size:11px;color:var(--text3);">300×300px PNG · คมชัด</div>'+
+              '</div>'+
+            '</div>'+
+            '<input type="file" id="s-bank-logo-file" accept="image/png,image/jpeg,image/webp" style="display:none"/>'+
+            '<input type="hidden" id="s-bank-logo" value="'+b64+'"/>';
+          // rebind file input
+          document.getElementById("s-bank-logo-file")?.addEventListener("change",async ev=>{
+            const f2=ev.target.files[0];if(!f2)return;
+            const b642=await cropCompressBank(f2);
+            document.getElementById("s-bank-logo").value=b642;
+            const prev=document.getElementById("bank-logo-preview");
+            if(prev)prev.src=b642;
+          });
+          toast("อัปโหลดโลโก้แล้วค่ะ (300×300px)");
         }catch(err){toast("อัปโหลดไม่ได้ครับ","error");}
       });
     }
