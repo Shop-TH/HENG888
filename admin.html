@@ -23,6 +23,59 @@
     body{font-family:var(--font);color:#ffffff;-webkit-font-smoothing:antialiased;line-height:1.7;}
     img{display:block;}button{font-family:var(--font);cursor:pointer;}
     .ti{font-size:inherit;line-height:1;vertical-align:-0.125em;}
+    /* ── ORDER LIST COMPACT ── */
+    .order-list-compact{display:flex;flex-direction:column;gap:6px;}
+    .order-row{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:13px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .2s,background .2s;border-left:3px solid transparent;}
+    .order-row:active{background:var(--bg3);}
+    .order-row.status-wait{border-left-color:#ff4d4d;}
+    .order-row.status-ok{border-left-color:#f0c040;}
+    .order-row.status-done{border-left-color:#3ddc84;}
+    .order-row.status-reject{border-left-color:rgba(255,255,255,0.15);}
+    .or-left{flex:1;min-width:0;}
+    .or-id{font-size:13px;font-weight:700;color:var(--gold2);margin-bottom:2px;}
+    .or-name{font-size:13px;color:#ffffff;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .or-time{font-size:11px;color:var(--text3);}
+    .or-right{text-align:right;flex-shrink:0;}
+    .or-total{font-size:15px;font-weight:700;color:var(--gold2);margin-bottom:4px;}
+    .or-badge{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;}
+    .or-badge.wait{background:rgba(255,77,77,0.12);color:#ff4d4d;border:1px solid rgba(255,77,77,0.3);}
+    .or-badge.ok{background:rgba(240,192,64,0.12);color:var(--gold);border:1px solid var(--gold-bd);}
+    .or-badge.done{background:rgba(61,220,132,0.10);color:#3ddc84;border:1px solid rgba(61,220,132,0.25);}
+    .or-badge.reject{background:rgba(255,255,255,0.05);color:var(--text3);border:1px solid var(--border);}
+    .or-chevron{color:var(--text3);font-size:16px;margin-left:4px;}
+    /* ── ORDER DETAIL MODAL ── */
+    .od-section{margin-bottom:14px;}
+    .od-section-lbl{font-size:10px;font-weight:600;color:var(--gold2);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+    .od-meta-row{display:flex;gap:8px;margin-bottom:6px;align-items:flex-start;}
+    .od-meta-ico{font-size:15px;color:var(--text3);flex-shrink:0;margin-top:1px;}
+    .od-meta-val{font-size:13px;color:var(--text2);line-height:1.6;}
+    .od-items{background:var(--bg3);border-radius:var(--r);padding:10px 12px;}
+    .od-item-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px;}
+    .od-item-row:last-child{border-bottom:none;}
+    .od-item-name{color:#ffffff;}
+    .od-item-price{color:var(--gold2);font-weight:600;}
+    .od-total-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0 4px;border-top:1px solid var(--border);margin-top:4px;}
+    .od-total-lbl{font-size:12px;color:var(--text3);}
+    .od-total-val{font-size:20px;font-weight:800;color:var(--gold2);}
+    .od-timeline{display:flex;flex-direction:column;gap:10px;}
+    .od-tl-row{display:flex;gap:10px;align-items:flex-start;}
+    .od-tl-dot{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+    .od-tl-dot.active{border-color:var(--gold);background:var(--gold-bg);}
+    .od-tl-dot.done{border-color:#3ddc84;background:rgba(61,220,132,0.1);}
+    .od-tl-dot i{font-size:11px;}
+    .od-tl-info{flex:1;}
+    .od-tl-label{font-size:13px;color:#ffffff;font-weight:500;}
+    .od-tl-time{font-size:11px;color:var(--text3);margin-top:1px;}
+    /* filter tabs */
+    .order-filter{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;}
+    .order-filter::-webkit-scrollbar{display:none;}
+    .of-btn{flex-shrink:0;padding:5px 14px;border-radius:20px;border:1px solid var(--border2);background:transparent;font-family:var(--font);font-size:12px;font-weight:600;color:var(--text3);cursor:pointer;transition:all .2s;white-space:nowrap;}
+    .of-btn.active-wait{background:rgba(255,77,77,0.12);color:#ff4d4d;border-color:rgba(255,77,77,0.3);}
+    .of-btn.active-ok{background:rgba(240,192,64,0.12);color:var(--gold);border-color:var(--gold-bd);}
+    .of-btn.active-done{background:rgba(61,220,132,0.10);color:#3ddc84;border-color:rgba(61,220,132,0.25);}
+    .of-btn.active-all{background:var(--bg3);color:#ffffff;border-color:var(--border2);}
+    .od-map-wrap{border-radius:var(--r);overflow:hidden;border:1px solid var(--border);margin-top:8px;}
+    .od-map-wrap iframe{width:100%;height:150px;border:none;display:block;}
     @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
     @keyframes spin{to{transform:rotate(360deg)}}
     @keyframes slideUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
@@ -319,43 +372,178 @@
     });
   }
 
+  // ── helper: แปลง Firestore timestamp → วัน/เวลาไทย ──
+  function fmtDate(ts){
+    if(!ts) return "-";
+    const d=ts.seconds?new Date(ts.seconds*1000):new Date(ts);
+    return d.toLocaleDateString("th-TH",{day:"2-digit",month:"short",year:"2-digit"})+
+           " "+d.toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"});
+  }
+
+  // ── realtime listener (Firestore onSnapshot) ──
+  let _unsubOrders=null;
+  function startOrdersListener(){
+    if(_unsubOrders) return; // ฟัง 1 ครั้ง
+    try{
+      const {onSnapshot,collection:col,query:q,orderBy}=window._fs||{};
+      // ถ้า import ไม่ได้ก็ข้าม — ใช้ manual refresh แทน
+    }catch{}
+    // ใช้ Firestore onSnapshot ผ่าน import ที่มีอยู่แล้ว
+    import("https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js").then(({onSnapshot,collection,orderBy,query})=>{
+      const q=query(collection(db,"orders"),orderBy("createdAt","desc"));
+      _unsubOrders=onSnapshot(q,snap=>{
+        S.orders=snap.docs.map(d=>({docId:d.id,...d.data()}));
+        if(S.tab==="orders") set({});
+      });
+    }).catch(()=>{});
+  }
+
   function tabOrders(){
-    const notice=isAdmin()?'<div class="role-notice"><i class="ti ti-user-shield"></i> คุณเห็นเฉพาะรายละเอียดสินค้าและข้อมูลจัดส่ง — ราคาจะถูกซ่อนไว้</div>':"";
-    const html=S.orders.map(o=>{
-      const itemsHtml=(o.items||[]).map(i=>'<div class="order-item-row"><span class="order-item-name">'+i.name+'</span><span class="order-item-qty">×'+i.qty+'</span>'+(isSuperAdmin()?'<span class="order-item-price">'+fmt(i.price*i.qty)+'</span>':'')+'</div>').join("");
-      const locHtml=o.location?
-        '<div class="order-meta-row"><span class="order-meta-ico"><i class="ti ti-map-pin"></i></span><span class="order-meta-val">'+
-        (o.location.lat?.toFixed(5)||"-")+', '+(o.location.lng?.toFixed(5)||"")+
-        '</span></div>'+
-        '<div style="margin-top:8px;border-radius:10px;overflow:hidden;border:1px solid var(--border);">'+
-        '<iframe src="https://maps.google.com/maps?q='+o.location.lat+','+o.location.lng+'&z=16&output=embed" width="100%" height="160" style="border:none;display:block;" loading="lazy"></iframe>'+
+    // filter state
+    const fil=S.orderFilter||"all";
+    const filtered=S.orders.filter(o=>{
+      if(fil==="wait") return !o.status||o.status==="รอตรวจสอบ";
+      if(fil==="ok")   return o.status==="ยืนยันแล้ว";
+      if(fil==="done") return o.status==="จัดส่งแล้ว"||!!o.trackingUrl;
+      return true;
+    });
+
+    const counts={
+      all:S.orders.length,
+      wait:S.orders.filter(o=>!o.status||o.status==="รอตรวจสอบ").length,
+      ok:S.orders.filter(o=>o.status==="ยืนยันแล้ว").length,
+      done:S.orders.filter(o=>o.status==="จัดส่งแล้ว"||!!o.trackingUrl).length,
+    };
+
+    const filterBar=
+      '<div class="order-filter">'+
+      '<button class="of-btn '+(fil==="all"?"active-all":"")+'" data-fil="all">ทั้งหมด ('+counts.all+')</button>'+
+      '<button class="of-btn '+(fil==="wait"?"active-wait":"")+'" data-fil="wait">รอยืนยัน ('+counts.wait+')</button>'+
+      '<button class="of-btn '+(fil==="ok"?"active-ok":"")+'" data-fil="ok">ยืนยันแล้ว ('+counts.ok+')</button>'+
+      '<button class="of-btn '+(fil==="done"?"active-done":"")+'" data-fil="done">ส่งแล้ว ('+counts.done+')</button>'+
+      '</div>';
+
+    const getStatusCls=o=>{
+      if(!o.status||o.status==="รอตรวจสอบ") return "wait";
+      if(o.status==="ยืนยันแล้ว"&&!o.trackingUrl) return "ok";
+      if(o.trackingUrl||o.status==="จัดส่งแล้ว") return "done";
+      if(o.status==="ปฏิเสธ") return "reject";
+      return "wait";
+    };
+    const getStatusLabel=o=>{
+      if(!o.status||o.status==="รอตรวจสอบ") return '<i class="ti ti-clock" style="font-size:10px;"></i> รอยืนยัน';
+      if(o.status==="ยืนยันแล้ว"&&!o.trackingUrl) return '<i class="ti ti-check" style="font-size:10px;"></i> ยืนยันแล้ว';
+      if(o.trackingUrl||o.status==="จัดส่งแล้ว") return '<i class="ti ti-truck-delivery" style="font-size:10px;"></i> ส่งแล้ว';
+      if(o.status==="ปฏิเสธ") return '<i class="ti ti-x" style="font-size:10px;"></i> ปฏิเสธ';
+      return o.status;
+    };
+
+    const rows=filtered.map(o=>{
+      const sc=getStatusCls(o);
+      const totalShow=isSuperAdmin()?fmt(o.total||0):"";
+      return'<div class="order-row status-'+sc+'" data-view-order="'+o.docId+'">'+
+        '<div class="or-left">'+
+          '<div class="or-id">'+(o.orderId||o.docId)+'</div>'+
+          '<div class="or-name">'+(o.customerName||"ลูกค้า")+(o.username?" · @"+o.username:"")+'</div>'+
+          '<div class="or-time"><i class="ti ti-clock" style="font-size:11px;"></i> '+fmtDate(o.createdAt)+'</div>'+
         '</div>'+
-        '<a href="https://maps.google.com/?q='+o.location.lat+','+o.location.lng+'" target="_blank" style="font-size:12px;color:var(--gold);text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-top:6px;"><i class="ti ti-map-2"></i> เปิดใน Google Maps</a>':"";
-      const actionBtns=isSuperAdmin()&&(!o.status||o.status==="รอตรวจสอบ")?
-        '<button class="btn btn-green btn-sm" data-co="'+o.docId+'" data-cid="'+o.chatId+'"><i class="ti ti-check"></i> ยืนยัน</button>'+
-        '<button class="btn btn-red btn-sm" data-ro="'+o.docId+'"><i class="ti ti-x"></i> ปฏิเสธ</button>':"";
-      const trackingBox=(o.status==="ยืนยันแล้ว"&&o.chatId&&o.chatId!=="guest")?
-        '<div class="tracking-box"><div class="tracking-lbl"><i class="ti ti-link"></i> ส่งลิงก์ติดตาม Rider</div>'+
-        '<input class="tracking-inp" id="trk-'+o.docId+'" placeholder="https://track.grab.com/..." value="'+(o.trackingUrl||"")+'"/>'+
-        '<div style="display:flex;gap:8px;align-items:center">'+
-        '<button class="btn btn-gold btn-sm" style="flex:1" data-send-trk="'+o.docId+'" data-cid="'+o.chatId+'" data-oid="'+(o.orderId||o.docId)+'"><i class="ti ti-send"></i> ส่งให้ลูกค้า</button>'+
+        '<div class="or-right">'+
+          (isSuperAdmin()?'<div class="or-total">'+totalShow+'</div>':"")+
+          '<span class="or-badge '+sc+'">'+getStatusLabel(o)+'</span>'+
+        '</div>'+
+        '<i class="ti ti-chevron-right or-chevron"></i>'+
+      '</div>';
+    }).join("")||'<div class="empty"><i class="ti ti-clipboard-off" style="font-size:40px;margin-bottom:10px;display:block;"></i><div>ไม่มีออเดอร์</div></div>';
+
+    const notice=isAdmin()?'<div class="role-notice"><i class="ti ti-user-shield"></i> ราคาถูกซ่อน — เห็นเฉพาะรายละเอียดสินค้าและข้อมูลจัดส่ง</div>':"";
+    return notice+
+      '<div class="card-head"><div class="card-title">ออเดอร์</div><button class="btn btn-gray btn-sm" id="refresh-orders"><i class="ti ti-refresh"></i></button></div>'+
+      filterBar+
+      '<div class="order-list-compact">'+rows+'</div>';
+  }
+
+  // ── ORDER DETAIL MODAL ──
+  function orderDetailModal(docId){
+    const o=S.orders.find(x=>x.docId===docId);
+    if(!o) return;
+
+    const getStatusCls=()=>{
+      if(!o.status||o.status==="รอตรวจสอบ") return "wait";
+      if(o.status==="ยืนยันแล้ว"&&!o.trackingUrl) return "ok";
+      if(o.trackingUrl) return "done";
+      if(o.status==="ปฏิเสธ") return "reject";
+      return "wait";
+    };
+
+    const itemsHtml=(o.items||[]).map(i=>
+      '<div class="od-item-row">'+
+        '<span class="od-item-name">'+i.name+' ×'+i.qty+'</span>'+
+        (isSuperAdmin()?'<span class="od-item-price">'+fmt(i.price*i.qty)+'</span>':'')+
+      '</div>'
+    ).join("");
+
+    const locHtml=o.location?
+      '<div class="od-map-wrap"><iframe src="https://maps.google.com/maps?q='+o.location.lat+','+o.location.lng+'&z=16&output=embed" loading="lazy"></iframe></div>'+
+      '<a href="https://maps.google.com/?q='+o.location.lat+','+o.location.lng+'" target="_blank" style="font-size:12px;color:var(--gold);text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-top:6px;"><i class="ti ti-map-2"></i> เปิดใน Google Maps</a>':"";
+
+    // timeline
+    const tlOrdered='<div class="od-tl-row"><div class="od-tl-dot done"><i class="ti ti-check" style="color:#3ddc84;"></i></div><div class="od-tl-info"><div class="od-tl-label">สั่งซื้อแล้ว</div><div class="od-tl-time">'+fmtDate(o.createdAt)+'</div></div></div>';
+    const tlConfirm=o.confirmedAt||o.status==="ยืนยันแล้ว"||o.trackingUrl?
+      '<div class="od-tl-row"><div class="od-tl-dot done"><i class="ti ti-check" style="color:#3ddc84;"></i></div><div class="od-tl-info"><div class="od-tl-label">ยืนยันออเดอร์</div><div class="od-tl-time">'+(o.confirmedAt?fmtDate(o.confirmedAt):"ยืนยันแล้ว")+'</div></div></div>':
+      '<div class="od-tl-row"><div class="od-tl-dot"><i class="ti ti-clock" style="color:var(--text3);"></i></div><div class="od-tl-info"><div class="od-tl-label" style="color:var(--text3);">รอยืนยัน</div></div></div>';
+    const tlShip=o.trackingUrl?
+      '<div class="od-tl-row"><div class="od-tl-dot done"><i class="ti ti-truck-delivery" style="color:#3ddc84;"></i></div><div class="od-tl-info"><div class="od-tl-label">ส่งของแล้ว</div><div class="od-tl-time">'+(o.trackingSentAt?fmtDate(o.trackingSentAt):"ส่งลิงก์แล้ว")+'</div></div></div>':
+      '<div class="od-tl-row"><div class="od-tl-dot"><i class="ti ti-truck-delivery" style="color:var(--text3);"></i></div><div class="od-tl-info"><div class="od-tl-label" style="color:var(--text3);">รอส่งของ</div></div></div>';
+
+    const actionBtns=isSuperAdmin()&&(!o.status||o.status==="รอตรวจสอบ")?
+      '<div style="display:flex;gap:8px;margin-top:14px;">'+
+        '<button class="btn btn-green btn-full" data-co="'+o.docId+'" data-cid="'+o.chatId+'"><i class="ti ti-check"></i> ยืนยันออเดอร์</button>'+
+        '<button class="btn btn-red" data-ro="'+o.docId+'" style="min-width:80px;"><i class="ti ti-x"></i> ปฏิเสธ</button>'+
+      '</div>':"";
+
+    const trackingBox=(o.status==="ยืนยันแล้ว"&&o.chatId&&o.chatId!=="guest")?
+      '<div class="tracking-box" style="margin-top:14px;"><div class="tracking-lbl"><i class="ti ti-link"></i> ส่งลิงก์ติดตาม Rider</div>'+
+      '<input class="tracking-inp" id="trk-'+o.docId+'" placeholder="https://track.grab.com/..." value="'+(o.trackingUrl||"")+'"/>'+
+      '<div style="display:flex;gap:8px;align-items:center;">'+
+        '<button class="btn btn-gold btn-full" data-send-trk="'+o.docId+'" data-cid="'+o.chatId+'" data-oid="'+(o.orderId||o.docId)+'"><i class="ti ti-send"></i> ส่งให้ลูกค้า</button>'+
         (o.trackingUrl?'<div class="tracking-sent"><i class="ti ti-circle-check"></i> ส่งแล้ว</div>':"")+
-        '</div></div>':"";
-      const statusCls=o.status==="ยืนยันแล้ว"?"badge-green":o.status==="ปฏิเสธ"?"badge-red":"badge-gold";
-      return'<div class="order-card '+(isAdmin()?"hide-price":"")+'">'+
-        '<div class="order-head"><span class="order-id">'+(o.orderId||o.docId)+'</span><span class="badge '+statusCls+'">'+(o.status||"รอตรวจสอบ")+'</span></div>'+
-        '<div class="order-section"><div class="order-section-lbl">ข้อมูลลูกค้า</div>'+
-        '<div class="order-meta-row"><span class="order-meta-ico"><i class="ti ti-user"></i></span><span class="order-meta-val">'+(o.customerName||"-")+(o.username?" @"+o.username:"")+'</span></div>'+
-        '<div class="order-meta-row"><span class="order-meta-ico"><i class="ti ti-phone"></i></span><span class="order-meta-val">'+(o.phone||"-")+'</span></div>'+
-        '<div class="order-meta-row"><span class="order-meta-ico"><i class="ti ti-home"></i></span><span class="order-meta-val">'+(o.address||"-")+'</span></div>'+
-        (o.note?'<div class="order-meta-row"><span class="order-meta-ico"><i class="ti ti-message"></i></span><span class="order-meta-val">'+o.note+'</span></div>':"")+
-        locHtml+'</div>'+
-        '<div class="order-section"><div class="order-section-lbl">รายการสินค้า</div><div class="order-items">'+itemsHtml+'</div></div>'+
-        (isSuperAdmin()?'<div class="order-total-row"><span class="order-total-lbl">ยอดรวม</span><span class="order-total-val">'+fmt(o.total||0)+'</span></div>':"")+
-        '<div class="order-foot">'+actionBtns+'</div>'+
-        trackingBox+'</div>';
-    }).join("")||'<div class="empty"><i class="ti ti-clipboard-off" style="font-size:40px;margin-bottom:10px;display:block;"></i><div>ยังไม่มีออเดอร์ครับ</div></div>';
-    return notice+'<div class="card-head"><div class="card-title">ออเดอร์ ('+S.orders.length+')</div><button class="btn btn-gray btn-sm" id="refresh-orders"><i class="ti ti-refresh"></i> รีเฟรช</button></div>'+html;
+      '</div></div>':"";
+
+    const sc=getStatusCls();
+    const body=
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'+
+        '<div class="order-id">'+(o.orderId||o.docId)+'</div>'+
+        '<span class="or-badge '+sc+'">'+
+          (sc==="wait"?'<i class="ti ti-clock" style="font-size:10px;"></i> รอยืนยัน':
+           sc==="ok"?'<i class="ti ti-check" style="font-size:10px;"></i> ยืนยันแล้ว':
+           sc==="done"?'<i class="ti ti-truck-delivery" style="font-size:10px;"></i> ส่งแล้ว':
+           '<i class="ti ti-x" style="font-size:10px;"></i> ปฏิเสธ')+
+        '</span>'+
+      '</div>'+
+
+      '<div class="od-section"><div class="od-section-lbl"><i class="ti ti-user"></i> ข้อมูลลูกค้า</div>'+
+        '<div class="od-meta-row"><span class="od-meta-ico"><i class="ti ti-user"></i></span><span class="od-meta-val">'+(o.customerName||"-")+(o.username?" · @"+o.username:"")+'</span></div>'+
+        '<div class="od-meta-row"><span class="od-meta-ico"><i class="ti ti-phone"></i></span><span class="od-meta-val">'+(o.phone||"-")+'</span></div>'+
+        '<div class="od-meta-row"><span class="od-meta-ico"><i class="ti ti-home"></i></span><span class="od-meta-val">'+(o.address||"-")+'</span></div>'+
+        (o.note?'<div class="od-meta-row"><span class="od-meta-ico"><i class="ti ti-message"></i></span><span class="od-meta-val">'+o.note+'</span></div>':"")+
+        locHtml+
+      '</div>'+
+
+      '<div class="od-section"><div class="od-section-lbl"><i class="ti ti-package"></i> รายการสินค้า</div>'+
+        '<div class="od-items">'+itemsHtml+'</div>'+
+        (isSuperAdmin()?'<div class="od-total-row"><span class="od-total-lbl">ยอดรวม</span><span class="od-total-val">'+fmt(o.total||0)+'</span></div>':"")+
+      '</div>'+
+
+      '<div class="od-section"><div class="od-section-lbl"><i class="ti ti-timeline"></i> ไทม์ไลน์</div>'+
+        '<div class="od-timeline">'+tlOrdered+tlConfirm+tlShip+'</div>'+
+      '</div>'+
+
+      actionBtns+trackingBox;
+
+    // inject modal
+    S.modal="order_detail";
+    S.mdata={...o,_body:body};
+    set({});
   }
 
   function tabBrands(){
@@ -436,6 +624,19 @@
   }
 
   function modalHTML(){
+    // ── ORDER DETAIL ──
+    if(S.modal==="order_detail"){
+      return'<div class="modal-ov" id="modal-ov">'+
+        '<div class="modal">'+
+          '<div class="modal-head">'+
+            '<div class="modal-title" style="color:var(--gold);">รายละเอียดออเดอร์</div>'+
+            '<button class="modal-close" id="close-modal"><i class="ti ti-x"></i></button>'+
+          '</div>'+
+          S.mdata._body+
+        '</div>'+
+      '</div>';
+    }
+
     const d=S.mdata;let title="",body="";
     if(S.modal==="add_prod"||S.modal==="edit_prod"){
       title=(S.modal==="add_prod"?"เพิ่มสินค้าใหม่":"แก้ไขสินค้า");
@@ -480,12 +681,25 @@
   }
 
   function bindMain(){
+    // ── start realtime listener ──
+    startOrdersListener();
+
     document.querySelectorAll(".tab").forEach(el=>el.addEventListener("click",async()=>{
       if(!isSuperAdmin())return;
       if(el.dataset.tab==="orders")S.orders=await loadOrders();
       set({tab:el.dataset.tab});
     }));
     document.getElementById("refresh-orders")?.addEventListener("click",async()=>{S.orders=await loadOrders();set({});});
+
+    // ── filter buttons ──
+    document.querySelectorAll("[data-fil]").forEach(el=>el.addEventListener("click",()=>{
+      S.orderFilter=el.dataset.fil;set({});
+    }));
+
+    // ── กดดูรายละเอียดออเดอร์ ──
+    document.querySelectorAll("[data-view-order]").forEach(el=>el.addEventListener("click",()=>{
+      orderDetailModal(el.dataset.viewOrder);
+    }));
     if(isSuperAdmin()){
       document.getElementById("add-prod")?.addEventListener("click",()=>set({modal:"add_prod",mdata:{active:true,brand:S.brands[0]?.key}}));
       document.getElementById("add-brand")?.addEventListener("click",()=>set({modal:"add_brand",mdata:{}}));
@@ -495,8 +709,18 @@
       document.querySelectorAll("[data-dp]").forEach(el=>el.addEventListener("click",()=>set({confirm:{title:"ลบสินค้า?",desc:'"'+el.dataset.dn+'"\nไม่สามารถกู้คืนได้',ok:"ลบ",onOk:async()=>{await delProd(el.dataset.dp);S.products=await loadProducts();set({confirm:null});toast("ลบสินค้าแล้ว","error");}}})));
       document.querySelectorAll("[data-eb]").forEach(el=>el.addEventListener("click",()=>{const b=S.brands.find(x=>x.docId===el.dataset.eb);set({modal:"edit_brand",mdata:{...b}});}));
       document.querySelectorAll("[data-db]").forEach(el=>el.addEventListener("click",()=>set({confirm:{title:"ลบแบรนด์?",desc:'"'+el.dataset.dbn+'"\nสินค้าในแบรนด์จะยังอยู่',ok:"ลบ",onOk:async()=>{await delBrand(el.dataset.db);S.brands=await loadBrands();set({confirm:null});toast("ลบแบรนด์แล้ว","error");}}})));
-      document.querySelectorAll("[data-co]").forEach(el=>el.addEventListener("click",async()=>{await updateOrder(el.dataset.co,"ยืนยันแล้ว");S.orders=await loadOrders();set({});toast("ยืนยันออเดอร์แล้ว");}));
-      document.querySelectorAll("[data-ro]").forEach(el=>el.addEventListener("click",async()=>{await updateOrder(el.dataset.ro,"ปฏิเสธ");S.orders=await loadOrders();set({});toast("ปฏิเสธออเดอร์แล้ว","error");}));
+      document.querySelectorAll("[data-co]").forEach(el=>el.addEventListener("click",async()=>{
+        await updateDoc(doc(db,"orders",el.dataset.co),{status:"ยืนยันแล้ว",confirmedAt:serverTimestamp()});
+        S.orders=await loadOrders();
+        set({modal:null,mdata:{}});
+        toast("ยืนยันออเดอร์แล้ว");
+      }));
+      document.querySelectorAll("[data-ro]").forEach(el=>el.addEventListener("click",async()=>{
+        await updateDoc(doc(db,"orders",el.dataset.ro),{status:"ปฏิเสธ"});
+        S.orders=await loadOrders();
+        set({modal:null,mdata:{}});
+        toast("ปฏิเสธออเดอร์แล้ว","error");
+      }));
       document.getElementById("save-bank-btn")?.addEventListener("click",async()=>{
         const bankName=document.getElementById("s-bank-name")?.value.trim();
         const accountNumber=document.getElementById("s-acc-num")?.value.trim();
@@ -536,8 +760,8 @@
         for(const sid of SUPERADMIN_IDS){
           await fetch("https://api.telegram.org/bot"+BOT+"/sendMessage",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:sid,parse_mode:"Markdown",text:"📦 *อัปเดตการจัดส่ง*\n\n📋 ออเดอร์: *"+orderId+"*\n🔗 ลิงก์ติดตาม:\n"+link})});
         }
-        await updateDoc(doc(db,"orders",docId),{trackingUrl:link,trackingSentAt:serverTimestamp()});
-        S.orders=await loadOrders();set({tab:"orders"});
+        await updateDoc(doc(db,"orders",docId),{trackingUrl:link,trackingSentAt:serverTimestamp(),status:"จัดส่งแล้ว"});
+        S.orders=await loadOrders();set({modal:null,mdata:{}});
         toast("ส่งลิงก์ให้ลูกค้า + superadmin แล้วค่ะ");
       }catch(e){el.disabled=false;el.innerHTML='<i class="ti ti-send"></i> ส่งให้ลูกค้า';toast("ส่งไม่ได้: "+e.message,"error");}
     }));
