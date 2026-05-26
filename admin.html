@@ -438,28 +438,41 @@
            " "+d.toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"});
   }
 
-  // ── realtime listener — ใช้ onSnapshot ที่ import มาแล้ว ──
-  let _unsubOrders=null;
+  // ── Auto-refresh orders — polling ทุก 10 วิ + refresh เมื่อ tab กลับมา ──
+  let _pollTimer=null;
+  let _lastRefresh=0;
+
+  async function refreshOrders(force=false){
+    const now=Date.now();
+    if(!force&&now-_lastRefresh<8000) return; // throttle
+    _lastRefresh=now;
+    try{
+      S.orders=await loadOrders();
+      if(S.view==="main"&&S.tab==="orders") set({});
+    }catch(e){console.warn("refreshOrders error:",e);}
+  }
+
   function startOrdersListener(){
-    if(_unsubOrders) return; // ฟังอยู่แล้ว ไม่ต้องเปิดซ้ำ
+    if(_pollTimer) return; // เริ่มแล้ว
+    // ① poll ทุก 10 วิ
+    _pollTimer=setInterval(()=>refreshOrders(),10000);
+    // ② refresh ทันทีเมื่อ tab กลับมา visible
+    document.addEventListener("visibilitychange",()=>{
+      if(document.visibilityState==="visible") refreshOrders(true);
+    });
+    // ③ ลอง onSnapshot ด้วย (ถ้า Firestore Rules อนุญาต จะ realtime ด้วย)
     try{
       const q=query(collection(db,"orders"),orderBy("createdAt","desc"));
-      _unsubOrders=onSnapshot(q,snap=>{
-        // อัปเดต orders ทุกครั้งที่ Firestore เปลี่ยน (ยืนยัน/ปฏิเสธ/ส่งลิงก์)
+      const unsub=onSnapshot(q,snap=>{
         S.orders=snap.docs.map(d=>({docId:d.id,...d.data()}));
+        _lastRefresh=Date.now();
         if(S.view==="main"&&S.tab==="orders") set({});
       },err=>{
-        console.warn("onSnapshot error:",err);
-        // fallback: poll ทุก 30 วิ
-        setInterval(async()=>{
-          if(S.tab==="orders"){
-            S.orders=await loadOrders();
-            set({});
-          }
-        },30000);
+        // onSnapshot ไม่ได้ — ใช้ poll อย่างเดียวก็พอ
+        console.warn("onSnapshot denied, using poll only:",err.code);
       });
     }catch(e){
-      console.warn("startOrdersListener error:",e);
+      console.warn("onSnapshot init error:",e);
     }
   }
 
@@ -522,7 +535,15 @@
 
     const notice=isAdmin()?'<div class="role-notice"><i class="ti ti-user-shield"></i> ราคาถูกซ่อน — เห็นเฉพาะรายละเอียดสินค้าและข้อมูลจัดส่ง</div>':"";
     return notice+
-      '<div class="card-head"><div class="card-title">ออเดอร์</div><button class="btn btn-gray btn-sm" id="refresh-orders"><i class="ti ti-refresh"></i></button></div>'+
+      '<div class="card-head">'+
+        '<div>'+
+          '<div class="card-title">ออเดอร์</div>'+
+          '<div style="font-size:10px;color:var(--text3);margin-top:2px;display:flex;align-items:center;gap:4px;">'+
+            '<i class="ti ti-refresh" style="font-size:11px;"></i> รีเฟรชอัตโนมัติทุก 10 วิ'+
+          '</div>'+
+        '</div>'+
+        '<button class="btn btn-gold btn-sm" id="refresh-orders"><i class="ti ti-refresh"></i> รีเฟรช</button>'+
+      '</div>'+
       filterBar+
       '<div class="order-list-compact">'+rows+'</div>';
   }
@@ -844,7 +865,12 @@
       if(el.dataset.tab==="orders")S.orders=await loadOrders();
       set({tab:el.dataset.tab});
     }));
-    document.getElementById("refresh-orders")?.addEventListener("click",async()=>{S.orders=await loadOrders();set({});});
+    document.getElementById("refresh-orders")?.addEventListener("click",async()=>{
+      const btn=document.getElementById("refresh-orders");
+      if(btn){btn.disabled=true;btn.innerHTML='<i class="ti ti-loader"></i> โหลด...';}
+      await refreshOrders(true);
+      if(btn){btn.disabled=false;btn.innerHTML='<i class="ti ti-refresh"></i> รีเฟรช';}
+    });
 
     // ── filter buttons ──
     document.querySelectorAll("[data-fil]").forEach(el=>el.addEventListener("click",()=>{
