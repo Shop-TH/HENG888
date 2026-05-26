@@ -199,7 +199,7 @@
 
   const FC={apiKey:"AIzaSyDJ8zikwztSXFHlP_Wh2yD0dkerM-8774U",authDomain:"heng888-c53cf.firebaseapp.com",projectId:"heng888-c53cf",storageBucket:"heng888-c53cf.firebasestorage.app",messagingSenderId:"644962406547",appId:"1:644962406547:web:e008bcb4042e574eb7d473"};
   const SHOP="shop_001";
-  const ASU="https://script.google.com/macros/s/AKfycbybq_4aEKEV1UDLKd6pYYVh38rsbaq7-sTGPMkdBeqUsGmSgZRk23742SuwbpMwgI_3/exec";
+  const ASU="https://script.google.com/macros/s/AKfycbx2u4h_WjC_IF41fmpLLnFbgAuoahS7frbknUwJqWJ-tJwYGgY7iuUdcwkj2z5t_Vhi/exec";
   const BOT="8869386184:AAHopsdsjU9kLdpyq55UJG3acCx8TDhdwA4";
   const ADMIN="7234688831";
 
@@ -453,8 +453,37 @@
   async function init(){
     render();
     if(checkAdmin()){
-      document.getElementById("root").innerHTML=`<div class="splash"><div class="sp-logo">HENG<span>888</span></div><div class="sp-line"></div><div class="sp-tag">Admin Panel</div><div class="sp-dots"><div class="sp-dot"></div><div class="sp-dot"></div><div class="sp-dot"></div></div></div>`;
-      setTimeout(()=>{ window.location.href="https://shop-th.github.io/HENG888/admin.html"; },800);
+      // ✅ ใช้ tg.openLink แทน window.location.href
+      // เพื่อให้ Telegram WebApp เปิดหน้า admin พร้อม initData ครบถ้วน
+      document.getElementById("root").innerHTML=`
+        <div class="splash">
+          <div class="sp-logo">HENG<span>888</span></div>
+          <div class="sp-line"></div>
+          <div class="sp-tag">Admin Panel</div>
+          <div class="sp-dots">
+            <div class="sp-dot"></div>
+            <div class="sp-dot"></div>
+            <div class="sp-dot"></div>
+          </div>
+          <div style="margin-top:32px;">
+            <button onclick="window.Telegram.WebApp.openLink('https://shop-th.github.io/HENG888/admin.html')"
+              style="background:var(--gold);color:#0a0a0a;border:none;border-radius:12px;padding:14px 28px;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;cursor:pointer;">
+              เปิด Admin Panel
+            </button>
+          </div>
+        </div>`;
+      // fallback: ถ้า tg.openLink ไม่ทำงาน ให้ redirect หลัง 3 วิ
+      setTimeout(()=>{
+        try{
+          if(window.Telegram?.WebApp?.openLink){
+            window.Telegram.WebApp.openLink("https://shop-th.github.io/HENG888/admin.html");
+          } else {
+            window.location.href="https://shop-th.github.io/HENG888/admin.html";
+          }
+        }catch{
+          window.location.href="https://shop-th.github.io/HENG888/admin.html";
+        }
+      },2000);
       return;
     }
     try{const[b,p]=await Promise.all([fBr(),fPr(),loadBank()]);S.brands=b;S.products=p;track();}catch(e){console.error(e);}
