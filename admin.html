@@ -7,6 +7,7 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"/>
   <style>
     :root{
       --bg:#fafaf8;--bg2:#ffffff;--bg3:#f4f3ef;--bg4:#ede9e0;--bg5:#e5e1d8;
@@ -20,7 +21,7 @@
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
     html,body{background:var(--bg);overscroll-behavior:none;min-height:100vh;}
     body{font-family:'Sarabun',sans-serif;color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.7;}
-    img{display:block;}button{font-family:'Sarabun',sans-serif;cursor:pointer;}
+    .ti{font-size:inherit;line-height:1;vertical-align:-0.125em;} img{display:block;}button{font-family:'Sarabun',sans-serif;cursor:pointer;}
 
     @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
     @keyframes spin{to{transform:rotate(360deg)}}
@@ -297,17 +298,17 @@
   function render(){
     const r=document.getElementById("root");
     if(S.view==="loading"){r.innerHTML=`<div class="center"><div class="spinner"></div><div style="color:var(--text3);font-size:13px;margin-top:8px">กำลังโหลด...</div></div>`;return;}
-    if(S.view==="denied"){r.innerHTML=`<div class="center" style="background:var(--bg);min-height:100vh;"><div style="font-size:48px">🔒</div><div style="font-size:18px;font-weight:700;color:var(--text);margin-top:12px;">ไม่มีสิทธิ์เข้าใช้งาน</div><div style="font-size:13px;color:var(--text3);margin-top:6px;">กรุณาเปิดผ่าน Telegram Bot ครับ</div></div>`;return;}
+    if(S.view==="denied"){r.innerHTML=`<div class="center" style="background:var(--bg);min-height:100vh;"><div style="font-size:48px"><i class="ti ti-lock" aria-hidden="true"></i></div><div style="font-size:18px;font-weight:700;color:var(--text);margin-top:12px;">ไม่มีสิทธิ์เข้าใช้งาน</div><div style="font-size:13px;color:var(--text3);margin-top:6px;">กรุณาเปิดผ่าน Telegram Bot ครับ</div></div>`;return;}
     if(S.view==="browser"){r.innerHTML=browserHTML();bindBrowser();return;}
 
     // ── tabs ตาม role ──
     const tabsHtml=isSuperAdmin()?`
-      <button class="tab ${S.tab==="orders"?"active":""}" data-tab="orders"><span class="tab-icon">📋</span><span>ออเดอร์</span></button>
-      <button class="tab ${S.tab==="brands"?"active":""}" data-tab="brands"><span class="tab-icon">🏷️</span><span>แบรนด์</span></button>
-      <button class="tab ${S.tab==="products"?"active":""}" data-tab="products"><span class="tab-icon">📦</span><span>สินค้า</span></button>
-      <button class="tab ${S.tab==="stats"?"active":""}" data-tab="stats"><span class="tab-icon">📊</span><span>ภาพรวม</span></button>
-      <button class="tab ${S.tab==="settings"?"active":""}" data-tab="settings"><span class="tab-icon">⚙️</span><span>ตั้งค่า</span></button>`
-    :`<button class="tab active" data-tab="orders"><span class="tab-icon">📋</span><span>ออเดอร์</span></button>`;
+      <button class="tab ${S.tab==="orders"?"active":""}" data-tab="orders"><span class="tab-icon"><i class="ti ti-clipboard-list" aria-hidden="true"></i></span><span>ออเดอร์</span></button>
+      <button class="tab ${S.tab==="brands"?"active":""}" data-tab="brands"><span class="tab-icon"><i class="ti ti-tag" aria-hidden="true"></i></span><span>แบรนด์</span></button>
+      <button class="tab ${S.tab==="products"?"active":""}" data-tab="products"><span class="tab-icon"><i class="ti ti-package" aria-hidden="true"></i></span><span>สินค้า</span></button>
+      <button class="tab ${S.tab==="stats"?"active":""}" data-tab="stats"><span class="tab-icon"><i class="ti ti-chart-bar" aria-hidden="true"></i></span><span>ภาพรวม</span></button>
+      <button class="tab ${S.tab==="settings"?"active":""}" data-tab="settings"><span class="tab-icon"><i class="ti ti-settings" aria-hidden="true"></i></span><span>ตั้งค่า</span></button>`
+    :`<button class="tab active" data-tab="orders"><span class="tab-icon"><i class="ti ti-clipboard-list" aria-hidden="true"></i></span><span>ออเดอร์</span></button>`;
 
     let content="";
     if(S.tab==="orders")content=tabOrders();
@@ -324,7 +325,7 @@
             <div class="header-role-name">${ADMIN?.name||U?.first_name||"Admin"}</div>
           </div>
         </div>
-        <span class="role-badge ${ADMIN?.role||"admin"}">${isSuperAdmin()?"⭐ Superadmin":"👤 Admin"}</span>
+        <span class="role-badge ${ADMIN?.role||"admin"}">${isSuperAdmin()?"Superadmin":"Admin"}</span>
       </div>
       <div class="tabs">${tabsHtml}</div>
       <div class="content">${content}</div>
@@ -352,7 +353,7 @@
   //  admin      → เห็นแค่รายละเอียดสินค้า ไม่เห็นราคา + เห็นปุ่ม tracking
   // ══════════════════════════════════════════
   function tabOrders(){
-    const notice=isAdmin()?`<div class="role-notice">👤 คุณเห็นเฉพาะรายละเอียดสินค้าและข้อมูลจัดส่ง — ราคาจะถูกซ่อนไว้</div>`:"";
+    const notice=isAdmin()?`<div class="role-notice"><i class="ti ti-user-shield" aria-hidden="true"></i> คุณเห็นเฉพาะรายละเอียดสินค้าและข้อมูลจัดส่ง — ราคาจะถูกซ่อนไว้</div>`:"";
 
     const html=S.orders.map(o=>{
       const itemsHtml=(o.items||[]).map(i=>`
@@ -364,17 +365,17 @@
 
       // ปุ่มตาม role
       const actionBtns=isSuperAdmin()&&(!o.status||o.status==="รอตรวจสอบ")?`
-        <button class="btn btn-green btn-sm" data-co="${o.docId}" data-cid="${o.chatId}">✅ ยืนยัน</button>
-        <button class="btn btn-red btn-sm" data-ro="${o.docId}">❌ ปฏิเสธ</button>`:"";
+        <button class="btn btn-green btn-sm" data-co="${o.docId}" data-cid="${o.chatId}"><i class="ti ti-check" aria-hidden="true"></i> ยืนยัน</button>
+        <button class="btn btn-red btn-sm" data-ro="${o.docId}"><i class="ti ti-x" aria-hidden="true"></i> ปฏิเสธ</button>`:"";
 
       // tracking — admin เห็นหลังออเดอร์ยืนยันแล้ว
       const trackingBox=(o.status==="ยืนยันแล้ว"&&o.chatId&&o.chatId!=="guest")?`
         <div class="tracking-box">
-          <div class="tracking-lbl">🔗 ส่งลิงก์ติดตาม Rider</div>
+          <div class="tracking-lbl"><i class="ti ti-link" aria-hidden="true"></i> ส่งลิงก์ติดตาม Rider</div>
           <input class="tracking-inp" id="trk-${o.docId}" placeholder="https://track.grab.com/..." value="${o.trackingUrl||""}"/>
           <div style="display:flex;gap:8px;align-items:center">
-            <button class="btn btn-gold btn-sm" style="flex:1" data-send-trk="${o.docId}" data-cid="${o.chatId}" data-oid="${o.orderId||o.docId}">📤 ส่งให้ลูกค้า</button>
-            ${o.trackingUrl?`<div class="tracking-sent">✅ ส่งแล้ว</div>`:""}
+            <button class="btn btn-gold btn-sm" style="flex:1" data-send-trk="${o.docId}" data-cid="${o.chatId}" data-oid="${o.orderId||o.docId}"><i class="ti ti-send" aria-hidden="true"></i> ส่งให้ลูกค้า</button>
+            ${o.trackingUrl?`<div class="tracking-sent"><i class="ti ti-circle-check" aria-hidden="true"></i> ส่งแล้ว</div>`:""}
           </div>
         </div>`:"";
 
@@ -386,12 +387,12 @@
 
         <div class="order-section">
           <div class="order-section-lbl">ข้อมูลลูกค้า</div>
-          <div class="order-meta-row"><span class="order-meta-ico">👤</span><span class="order-meta-val">${o.customerName||"-"} ${o.username?"@"+o.username:""}</span></div>
-          <div class="order-meta-row"><span class="order-meta-ico">📞</span><span class="order-meta-val">${o.phone||"-"}</span></div>
-          <div class="order-meta-row"><span class="order-meta-ico">🏠</span><span class="order-meta-val">${o.address||"-"}</span></div>
-          ${o.note?`<div class="order-meta-row"><span class="order-meta-ico">💬</span><span class="order-meta-val">${o.note}</span></div>`:""}
+          <div class="order-meta-row"><span class="order-meta-ico"><i class="ti ti-user" aria-hidden="true"></i></span><span class="order-meta-val">${o.customerName||"-"} ${o.username?"@"+o.username:""}</span></div>
+          <div class="order-meta-row"><span class="order-meta-ico"><i class="ti ti-phone" aria-hidden="true"></i></span><span class="order-meta-val">${o.phone||"-"}</span></div>
+          <div class="order-meta-row"><span class="order-meta-ico"><i class="ti ti-home" aria-hidden="true"></i></span><span class="order-meta-val">${o.address||"-"}</span></div>
+          ${o.note?`<div class="order-meta-row"><span class="order-meta-ico"><i class="ti ti-message" aria-hidden="true"></i></span><span class="order-meta-val">${o.note}</span></div>`:""}
           ${o.location?`
-          <div class="order-meta-row"><span class="order-meta-ico">📍</span><span class="order-meta-val">${o.location.lat?.toFixed(5)||"-"}, ${o.location.lng?.toFixed(5)||""}</span></div>
+          <div class="order-meta-row"><span class="order-meta-ico"><i class="ti ti-map-pin" aria-hidden="true"></i></span><span class="order-meta-val">${o.location.lat?.toFixed(5)||"-"}, ${o.location.lng?.toFixed(5)||""}</span></div>
           <div style="margin-top:8px;border-radius:10px;overflow:hidden;border:1px solid var(--border);">
             <iframe
               src="https://maps.google.com/maps?q=${o.location.lat||o.location},${o.location.lng||""}&z=16&output=embed"
@@ -400,7 +401,7 @@
           </div>
           <div style="margin-top:6px;">
             <a href="https://maps.google.com/?q=${o.location.lat},${o.location.lng}" target="_blank"
-               style="font-size:12px;color:var(--gold);text-decoration:none;">🔗 เปิดใน Google Maps</a>
+               style="font-size:12px;color:var(--gold);text-decoration:none;"><i class="ti ti-map-2" aria-hidden="true"></i> เปิดใน Google Maps</a>
           </div>`:""}
         </div>
 
@@ -414,21 +415,21 @@
         <div class="order-foot">${actionBtns}</div>
         ${trackingBox}
       </div>`;
-    }).join("")||`<div class="empty"><div style="font-size:40px;margin-bottom:10px">📋</div><div>ยังไม่มีออเดอร์ครับ</div></div>`;
+    }).join("")||`<div class="empty"><div style="font-size:40px;margin-bottom:10px"><i class="ti ti-clipboard-off" aria-hidden="true" style="font-size:40px;margin-bottom:10px;"></i></div><div>ยังไม่มีออเดอร์ครับ</div></div>`;
 
-    return`${notice}<div class="card-head"><div class="card-title">ออเดอร์ (${S.orders.length})</div><button class="btn btn-gray btn-sm" id="refresh-orders">🔄 รีเฟรช</button></div>${html}`;
+    return`${notice}<div class="card-head"><div class="card-title">ออเดอร์ (${S.orders.length})</div><button class="btn btn-gray btn-sm" id="refresh-orders"><i class="ti ti-refresh" aria-hidden="true"></i> รีเฟรช</button></div>${html}`;
   }
 
   // ══ TABS: superadmin เท่านั้น ══
   function tabBrands(){
-    const html=S.brands.map(b=>{const cnt=S.products.filter(p=>p.brand===b.key).length;return`<div class="brand-admin"><div class="brand-admin-head"><div class="brand-admin-info"><div class="brand-logo-thumb">${b.logoUrl?`<img src="${b.logoUrl}" alt="${b.name}" onerror="this.style.display='none'"/>`:b.emoji||"🫧"}</div><div><div class="brand-admin-name">${b.name}</div><div class="brand-admin-sub">${cnt} SKU · ${b.desc||""}</div></div></div><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" data-eb="${b.docId}">✏️ แก้ไข</button><button class="btn btn-red btn-sm" data-db="${b.docId}" data-dbn="${b.name}">🗑️</button></div></div><div class="brand-admin-body">${S.products.filter(p=>p.brand===b.key).slice(0,4).map(p=>`<span class="badge badge-gray">${p.name}</span>`).join("")}${cnt>4?`<span class="badge badge-gold">+${cnt-4}</span>`:""}${cnt===0?`<span style="font-size:12px;color:var(--text3)">ยังไม่มีสินค้า</span>`:""}</div></div>`;}).join("")||`<div class="empty"><div style="font-size:40px;margin-bottom:10px">🏷️</div><div>ยังไม่มีแบรนด์ครับ</div></div>`;
-    return`<div class="card-head"><div class="card-title">แบรนด์ (${S.brands.length})</div><button class="btn btn-gold" id="add-brand">+ เพิ่มแบรนด์</button></div>${html}`;
+    const html=S.brands.map(b=>{const cnt=S.products.filter(p=>p.brand===b.key).length;return`<div class="brand-admin"><div class="brand-admin-head"><div class="brand-admin-info"><div class="brand-logo-thumb">${b.logoUrl?`<img src="${b.logoUrl}" alt="${b.name}" onerror="this.style.display='none'"/>`:b.emoji||"🫧"}</div><div><div class="brand-admin-name">${b.name}</div><div class="brand-admin-sub">${cnt} SKU · ${b.desc||""}</div></div></div><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" data-eb="${b.docId}"><i class="ti ti-edit" aria-hidden="true"></i> แก้ไข</button><button class="btn btn-red btn-sm" data-db="${b.docId}" data-dbn="${b.name}"><i class="ti ti-trash" aria-hidden="true"></i></button></div></div><div class="brand-admin-body">${S.products.filter(p=>p.brand===b.key).slice(0,4).map(p=>`<span class="badge badge-gray">${p.name}</span>`).join("")}${cnt>4?`<span class="badge badge-gold">+${cnt-4}</span>`:""}${cnt===0?`<span style="font-size:12px;color:var(--text3)">ยังไม่มีสินค้า</span>`:""}</div></div>`;}).join("")||`<div class="empty"><div style="font-size:40px;margin-bottom:10px"><i class="ti ti-tag-off" aria-hidden="true" style="font-size:40px;margin-bottom:10px;"></i></div><div>ยังไม่มีแบรนด์ครับ</div></div>`;
+    return`<div class="card-head"><div class="card-title">แบรนด์ (${S.brands.length})</div><button class="btn btn-gold" id="add-brand"><i class="ti ti-plus" aria-hidden="true"></i> เพิ่มแบรนด์</button></div>${html}`;
   }
 
   function tabProds(){
     const low=S.products.filter(p=>(p.stock||0)<=10&&p.active);
-    const html=S.products.map(p=>{const b=S.brands.find(x=>x.key===p.brand);const color=p.active?"var(--gold)":"var(--border)";return`<div class="prod-item" style="border-left-color:${color}"><div class="prod-thumb">${p.imageUrl?`<img src="${p.imageUrl}" onerror="this.style.display='none'"/>`:b?.emoji||"📦"}</div><div class="prod-info"><div class="prod-name">${p.name}</div><div class="prod-meta"><span class="badge badge-gold">${b?.name||p.brand}</span><span class="badge ${p.active?"badge-green":"badge-gray"}">${p.active?"แสดง":"ซ่อน"}</span><span class="badge ${(p.stock||0)<=5?"badge-red":(p.stock||0)<=10?"badge-gold":"badge-gray"}">📦 ${p.stock||0}</span></div><div class="prod-price">${fmt(p.price)}</div></div><div class="prod-actions"><button class="btn btn-outline btn-icon btn-sm" data-ep="${p.docId}">✏️</button><button class="btn btn-gray btn-icon btn-sm" data-sp="${p.docId}">📦</button><button class="btn ${p.active?"btn-gray":"btn-green"} btn-icon btn-sm" data-tp="${p.docId}" data-ta="${p.active}">${p.active?"👁":"✓"}</button><button class="btn btn-red btn-icon btn-sm" data-dp="${p.docId}" data-dn="${p.name}">🗑️</button></div></div>`;}).join("")||`<div class="empty"><div style="font-size:40px;margin-bottom:10px">📦</div><div>ยังไม่มีสินค้าครับ</div></div>`;
-    return`${low.length>0?`<div class="alert">⚠️ สินค้าสต็อกต่ำ ${low.length} รายการ (≤10 ชิ้น)</div>`:""}<div class="card-head"><div class="card-title">สินค้า (${S.products.length})</div><button class="btn btn-gold" id="add-prod">+ เพิ่มสินค้า</button></div>${html}`;
+    const html=S.products.map(p=>{const b=S.brands.find(x=>x.key===p.brand);const color=p.active?"var(--gold)":"var(--border)";return`<div class="prod-item" style="border-left-color:${color}"><div class="prod-thumb">${p.imageUrl?`<img src="${p.imageUrl}" onerror="this.style.display='none'"/>`:b?.emoji||"📦"}</div><div class="prod-info"><div class="prod-name">${p.name}</div><div class="prod-meta"><span class="badge badge-gold">${b?.name||p.brand}</span><span class="badge ${p.active?"badge-green":"badge-gray"}">${p.active?"แสดง":"ซ่อน"}</span><span class="badge ${(p.stock||0)<=5?"badge-red":(p.stock||0)<=10?"badge-gold":"badge-gray"}">📦 ${p.stock||0}</span></div><div class="prod-price">${fmt(p.price)}</div></div><div class="prod-actions"><button class="btn btn-outline btn-icon btn-sm" data-ep="${p.docId}"><i class="ti ti-edit" aria-hidden="true"></i></button><button class="btn btn-gray btn-icon btn-sm" data-sp="${p.docId}"><i class="ti ti-package" aria-hidden="true"></i></button><button class="btn ${p.active?"btn-gray":"btn-green"} btn-icon btn-sm" data-tp="${p.docId}" data-ta="${p.active}"><i class="ti ti-${p.active?'eye-off':'eye'}" aria-hidden="true"></i></button><button class="btn btn-red btn-icon btn-sm" data-dp="${p.docId}" data-dn="${p.name}"><i class="ti ti-trash" aria-hidden="true"></i></button></div></div>`;}).join("")||`<div class="empty"><div style="font-size:40px;margin-bottom:10px"><i class="ti ti-package-off" aria-hidden="true" style="font-size:40px;margin-bottom:10px;"></i></div><div>ยังไม่มีสินค้าครับ</div></div>`;
+    return`${low.length>0?`<div class="alert"><i class="ti ti-alert-triangle" aria-hidden="true"></i> สินค้าสต็อกต่ำ ${low.length} รายการ (≤10 ชิ้น)</div>`:""}<div class="card-head"><div class="card-title">สินค้า (${S.products.length})</div><button class="btn btn-gold" id="add-prod"><i class="ti ti-plus" aria-hidden="true"></i> เพิ่มสินค้า</button></div>${html}`;
   }
 
   function tabStats(){
@@ -447,16 +448,22 @@
   function tabSettings(){
     const bk=S.bank||{};
     const bankOptions=[
-      {code:"kbank",name:"กสิกรไทย",icon:"🟢"},
-      {code:"scb",name:"ไทยพาณิชย์",icon:"🟣"},
-      {code:"bbl",name:"กรุงเทพ",icon:"🔵"},
-      {code:"ktb",name:"กรุงไทย",icon:"🔷"},
-      {code:"bay",name:"กรุงศรีอยุธยา",icon:"🟡"},
-      {code:"ttb",name:"ทหารไทยธนชาต",icon:"⚡"},
-      {code:"gsb",name:"ออมสิน",icon:"🌸"},
-      {code:"baac",name:"ธ.ก.ส.",icon:"🌾"},
-      {code:"promptpay",name:"พร้อมเพย์",icon:"💳"},
-    ].map(b=>`<option value="${b.name}" ${bk.bankName===b.name?"selected":""}>${b.icon} ${b.name}</option>`).join("");
+      {name:"กสิกรไทย"},{name:"ไทยพาณิชย์"},{name:"กรุงเทพ"},
+      {name:"กรุงไทย"},{name:"กรุงศรีอยุธยา"},{name:"ทหารไทยธนชาต"},
+      {name:"ออมสิน"},{name:"ธ.ก.ส."},{name:"พร้อมเพย์"},
+    ].map(b=>`<option value="${b.name}" ${bk.bankName===b.name?"selected":""}>${b.name}</option>`).join("");
+
+    const logoPreview=bk.logoUrl
+      ?`<div class="logo-preview-wrap">
+          <img class="logo-preview-img" id="bank-logo-preview" src="${bk.logoUrl}" style="width:80px;height:80px;border-radius:var(--r);object-fit:cover;border:1px solid var(--border);"/>
+          <button class="logo-preview-change" onclick="document.getElementById('s-bank-logo-file').click()" style="border-radius:var(--r);">เปลี่ยน</button>
+        </div>
+        <div style="font-size:11px;color:var(--green);margin-top:4px;"><i class="ti ti-circle-check" aria-hidden="true"></i> มีโลโก้แล้ว</div>`
+      :`<div class="logo-upload-zone" onclick="document.getElementById('s-bank-logo-file').click()" style="padding:18px;">
+          <div class="logo-upload-ico"><i class="ti ti-building-bank" aria-hidden="true" style="font-size:28px;"></i></div>
+          <div class="logo-upload-txt">อัปโหลดโลโก้ธนาคาร</div>
+          <div class="logo-upload-hint">Crop 1:1 อัตโนมัติ · JPG, PNG</div>
+        </div>`;
 
     return`
     <div style="display:flex;flex-direction:column;gap:14px;">
@@ -465,7 +472,72 @@
       <div style="background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:var(--r-lg);padding:18px 20px;">
         <div style="font-size:10px;font-weight:600;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">บัญชีที่ใช้งานอยู่</div>
         <div style="display:flex;align-items:center;gap:14px;">
-          <div style="font-size:36px;">🏦</div>
+          <div style="width:56px;height:56px;border-radius:var(--r);overflow:hidden;flex-shrink:0;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;">
+            ${bk.logoUrl
+              ?`<img src="${bk.logoUrl}" style="width:100%;height:100%;object-fit:cover;" alt="bank logo"/>`
+              :`<i class="ti ti-building-bank" aria-hidden="true" style="font-size:24px;color:var(--text3);"></i>`}
+          </div>
+          <div>
+            <div style="font-size:16px;font-weight:700;color:var(--text);">${bk.bankName||"-"}</div>
+            <div style="font-size:20px;font-weight:700;color:var(--gold);letter-spacing:1px;margin:4px 0;">${bk.accountNumber||"-"}</div>
+            <div style="font-size:12px;color:var(--text3);">${bk.accountHolder||"-"}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── edit form ── -->
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 20px;">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+          <i class="ti ti-edit" aria-hidden="true"></i> แก้ไขข้อมูลบัญชี
+        </div>
+
+        <!-- โลโก้ธนาคาร -->
+        <div class="form-group">
+          <label class="form-label">โลโก้ธนาคาร</label>
+          <div id="bank-logo-wrap">
+            ${logoPreview}
+          </div>
+          <input type="file" id="s-bank-logo-file" accept="image/*" style="display:none"/>
+          <input type="hidden" id="s-bank-logo" value="${bk.logoUrl||""}"/>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">ธนาคาร</label>
+          <select class="form-input form-select" id="s-bank-name">${bankOptions}</select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">เลขบัญชี</label>
+          <input class="form-input" id="s-acc-num" placeholder="เช่น 123-4-56789-0" value="${bk.accountNumber||""}" type="text" inputmode="numeric"/>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">ชื่อบัญชี</label>
+          <input class="form-input" id="s-acc-holder" placeholder="เช่น HENG888 CO., LTD." value="${bk.accountHolder||""}"/>
+        </div>
+
+        <button class="btn btn-gold btn-full" id="save-bank-btn" style="margin-top:6px;">
+          <i class="ti ti-device-floppy" aria-hidden="true"></i> บันทึกข้อมูลบัญชี
+        </button>
+      </div>
+
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 18px;">
+        <div style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;margin-bottom:6px;">หมายเหตุ</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7;">
+          ข้อมูลบัญชีและโลโก้จะแสดงในหน้าชำระเงินของลูกค้าทันที ไม่ต้องแก้โค้ด
+        </div>
+      </div>
+    </div>`;
+  }
+
+    return`
+    <div style="display:flex;flex-direction:column;gap:14px;">
+
+      <!-- ── current bank display ── -->
+      <div style="background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:var(--r-lg);padding:18px 20px;">
+        <div style="font-size:10px;font-weight:600;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">บัญชีที่ใช้งานอยู่</div>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="font-size:36px;"><i class="ti ti-building-bank" aria-hidden="true"></i></div>
           <div>
             <div style="font-size:16px;font-weight:700;color:var(--text);">${bk.bankName||"-"}</div>
             <div style="font-size:22px;font-weight:800;color:var(--gold);letter-spacing:1px;margin:4px 0;">${bk.accountNumber||"-"}</div>
@@ -476,7 +548,7 @@
 
       <!-- ── edit form ── -->
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 20px;">
-        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:16px;">✏️ แก้ไขข้อมูลบัญชี</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:16px;"><i class="ti ti-edit" aria-hidden="true"></i> แก้ไขข้อมูลบัญชี</div>
 
         <div class="form-group">
           <label class="form-label">ธนาคาร</label>
@@ -501,7 +573,7 @@
         </div>
 
         <button class="btn btn-gold btn-full" id="save-bank-btn" style="margin-top:6px;">
-          💾 บันทึกข้อมูลบัญชี
+          <i class="ti ti-device-floppy" aria-hidden="true"></i> บันทึกข้อมูลบัญชี
         </button>
       </div>
 
@@ -518,18 +590,18 @@
   function modalHTML(){
     const d=S.mdata;let title="",body="";
     if(S.modal==="add_prod"||S.modal==="edit_prod"){
-      title=S.modal==="add_prod"?"+ เพิ่มสินค้าใหม่":"✏️ แก้ไขสินค้า";
-      body=`<div class="form-group"><label class="form-label">แบรนด์ *</label><select class="form-input form-select" id="f-brand">${S.brands.map(b=>`<option value="${b.key}" ${d.brand===b.key?"selected":""}>${b.name}</option>`).join("")}</select></div><div class="form-group"><label class="form-label">ชื่อสินค้า *</label><input class="form-input" id="f-name" placeholder="เช่น Dior Sauvage 100ml" value="${d.name||""}"/></div><div class="form-row"><div class="form-group"><label class="form-label">ราคา (฿) *</label><input class="form-input" id="f-price" type="number" placeholder="3500" value="${d.price||""}"/></div><div class="form-group"><label class="form-label">สต็อก</label><input class="form-input" id="f-stock" type="number" placeholder="20" value="${d.stock||""}"/></div></div><div class="form-group"><label class="form-label">รูปสินค้า</label><div id="prod-img-wrap">${d.imageUrl?`<div class="prod-img-preview"><img id="prod-img-el" src="${d.imageUrl}"/><button class="prod-img-preview-btn" onclick="document.getElementById('f-img-file').click()">เปลี่ยน</button></div>`:`<div class="prod-img-zone" onclick="document.getElementById('f-img-file').click()"><div style="font-size:24px;margin-bottom:6px">🖼️</div><div class="logo-upload-txt">อัปโหลดรูปสินค้า</div></div>`}<input type="file" id="f-img-file" accept="image/*" style="display:none"/><input type="hidden" id="f-img" value="${d.imageUrl||""}"/></div></div><div class="form-group"><label class="form-label">รายละเอียด</label><textarea class="form-input form-textarea" id="f-desc" placeholder="คุณสมบัติ กลิ่น ปริมาณ...">${d.description||""}</textarea></div><div class="toggle-wrap" style="margin-bottom:16px"><div><div class="toggle-lbl">แสดงสินค้า</div><div class="toggle-sub">ลูกค้าจะเห็นสินค้านี้</div></div><button class="toggle" id="f-toggle" style="background:${d.active!==false?"var(--gold)":"var(--bg5)"}"><div class="toggle-knob" style="left:${d.active!==false?22:3}px"></div></button></div><button class="btn btn-gold btn-full" id="save-prod">💾 บันทึกสินค้า</button>`;
+      title=S.modal==="add_prod"?"<i class="ti ti-plus" aria-hidden="true"></i> เพิ่มสินค้าใหม่":"<i class="ti ti-edit" aria-hidden="true"></i> แก้ไขสินค้า";
+      body=`<div class="form-group"><label class="form-label">แบรนด์ *</label><select class="form-input form-select" id="f-brand">${S.brands.map(b=>`<option value="${b.key}" ${d.brand===b.key?"selected":""}>${b.name}</option>`).join("")}</select></div><div class="form-group"><label class="form-label">ชื่อสินค้า *</label><input class="form-input" id="f-name" placeholder="เช่น Dior Sauvage 100ml" value="${d.name||""}"/></div><div class="form-row"><div class="form-group"><label class="form-label">ราคา (฿) *</label><input class="form-input" id="f-price" type="number" placeholder="3500" value="${d.price||""}"/></div><div class="form-group"><label class="form-label">สต็อก</label><input class="form-input" id="f-stock" type="number" placeholder="20" value="${d.stock||""}"/></div></div><div class="form-group"><label class="form-label">รูปสินค้า</label><div id="prod-img-wrap">${d.imageUrl?`<div class="prod-img-preview"><img id="prod-img-el" src="${d.imageUrl}"/><button class="prod-img-preview-btn" onclick="document.getElementById('f-img-file').click()">เปลี่ยน</button></div>`:`<div class="prod-img-zone" onclick="document.getElementById('f-img-file').click()"><div style="font-size:24px;margin-bottom:6px"><i class="ti ti-photo" aria-hidden="true" style="font-size:24px;margin-bottom:6px;"></i></div><div class="logo-upload-txt">อัปโหลดรูปสินค้า</div></div>`}<input type="file" id="f-img-file" accept="image/*" style="display:none"/><input type="hidden" id="f-img" value="${d.imageUrl||""}"/></div></div><div class="form-group"><label class="form-label">รายละเอียด</label><textarea class="form-input form-textarea" id="f-desc" placeholder="คุณสมบัติ กลิ่น ปริมาณ...">${d.description||""}</textarea></div><div class="toggle-wrap" style="margin-bottom:16px"><div><div class="toggle-lbl">แสดงสินค้า</div><div class="toggle-sub">ลูกค้าจะเห็นสินค้านี้</div></div><button class="toggle" id="f-toggle" style="background:${d.active!==false?"var(--gold)":"var(--bg5)"}"><div class="toggle-knob" style="left:${d.active!==false?22:3}px"></div></button></div><button class="btn btn-gold btn-full" id="save-prod"><i class="ti ti-device-floppy" aria-hidden="true"></i> บันทึกสินค้า</button>`;
     }
     if(S.modal==="add_brand"||S.modal==="edit_brand"){
-      title=S.modal==="add_brand"?"+ เพิ่มแบรนด์":"✏️ แก้ไขแบรนด์";
-      body=`<div class="form-group"><label class="form-label">ชื่อแบรนด์ *</label><input class="form-input" id="f-bname" placeholder="เช่น DIOR" value="${d.name||""}"/></div><div class="form-group"><label class="form-label">คำอธิบาย</label><input class="form-input" id="f-bdesc" placeholder="น้ำหอมแบรนด์ High-end" value="${d.desc||""}"/></div><div class="form-group"><label class="form-label">Logo แบรนด์</label><div id="logo-wrap" style="display:flex;flex-direction:column;gap:10px">${d.logoUrl?`<div class="logo-preview-wrap"><img class="logo-preview-img" id="logo-preview" src="${d.logoUrl}"/><button class="logo-preview-change" onclick="document.getElementById('f-logo-file').click()">เปลี่ยน Logo</button></div>`:`<div class="logo-upload-zone" onclick="document.getElementById('f-logo-file').click()"><div class="logo-upload-ico">🖼️</div><div class="logo-upload-txt">อัปโหลด Logo แบรนด์</div></div>`}<input type="file" id="f-logo-file" accept="image/*" style="display:none"/><input type="hidden" id="f-logo" value="${d.logoUrl||""}"/></div></div><button class="btn btn-gold btn-full" id="save-brand">💾 บันทึกแบรนด์</button>`;
+      title=S.modal==="add_brand"?"<i class="ti ti-plus" aria-hidden="true"></i> เพิ่มแบรนด์":"<i class="ti ti-edit" aria-hidden="true"></i> แก้ไขแบรนด์";
+      body=`<div class="form-group"><label class="form-label">ชื่อแบรนด์ *</label><input class="form-input" id="f-bname" placeholder="เช่น DIOR" value="${d.name||""}"/></div><div class="form-group"><label class="form-label">คำอธิบาย</label><input class="form-input" id="f-bdesc" placeholder="น้ำหอมแบรนด์ High-end" value="${d.desc||""}"/></div><div class="form-group"><label class="form-label">Logo แบรนด์</label><div id="logo-wrap" style="display:flex;flex-direction:column;gap:10px">${d.logoUrl?`<div class="logo-preview-wrap"><img class="logo-preview-img" id="logo-preview" src="${d.logoUrl}"/><button class="logo-preview-change" onclick="document.getElementById('f-logo-file').click()">เปลี่ยน Logo</button></div>`:`<div class="logo-upload-zone" onclick="document.getElementById('f-logo-file').click()"><div class="logo-upload-ico"><i class="ti ti-photo" aria-hidden="true" style="font-size:28px;"></i></div><div class="logo-upload-txt">อัปโหลด Logo แบรนด์</div></div>`}<input type="file" id="f-logo-file" accept="image/*" style="display:none"/><input type="hidden" id="f-logo" value="${d.logoUrl||""}"/></div></div><button class="btn btn-gold btn-full" id="save-brand"><i class="ti ti-device-floppy" aria-hidden="true"></i> บันทึกแบรนด์</button>`;
     }
     if(S.modal==="stock"){
       const p=S.products.find(x=>x.docId===d.docId);title="📦 ปรับสต็อก";
-      body=`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center;margin-bottom:16px"><div style="font-size:12px;color:var(--text3);margin-bottom:6px">${p?.name}</div><div style="font-size:36px;font-weight:800;color:var(--text)">${p?.stock||0} <span style="font-size:14px;color:var(--text3)">ชิ้น</span></div></div><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px">${[-50,-10,-5,-1,1,5,10,50].map(n=>`<button class="btn ${n<0?"btn-red":"btn-green"} sk-d" data-n="${n}" style="min-width:54px">${n>0?"+":""}${n}</button>`).join("")}</div><div class="form-group"><label class="form-label">ตั้งค่าโดยตรง</label><input class="form-input" id="f-stk" type="number" placeholder="${p?.stock||0}" style="text-align:center;font-size:20px;font-weight:700"/></div><button class="btn btn-gold btn-full" id="save-stk">💾 อัปเดตสต็อก</button>`;
+      body=`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center;margin-bottom:16px"><div style="font-size:12px;color:var(--text3);margin-bottom:6px">${p?.name}</div><div style="font-size:36px;font-weight:800;color:var(--text)">${p?.stock||0} <span style="font-size:14px;color:var(--text3)">ชิ้น</span></div></div><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px">${[-50,-10,-5,-1,1,5,10,50].map(n=>`<button class="btn ${n<0?"btn-red":"btn-green"} sk-d" data-n="${n}" style="min-width:54px">${n>0?"+":""}${n}</button>`).join("")}</div><div class="form-group"><label class="form-label">ตั้งค่าโดยตรง</label><input class="form-input" id="f-stk" type="number" placeholder="${p?.stock||0}" style="text-align:center;font-size:20px;font-weight:700"/></div><button class="btn btn-gold btn-full" id="save-stk"><i class="ti ti-device-floppy" aria-hidden="true"></i> อัปเดตสต็อก</button>`;
     }
-    return`<div class="modal-ov" id="modal-ov"><div class="modal"><div class="modal-head"><div class="modal-title">${title}</div><button class="modal-close" id="close-modal">✕</button></div>${body}</div></div>`;
+    return`<div class="modal-ov" id="modal-ov"><div class="modal"><div class="modal-head"><div class="modal-title">${title}</div><button class="modal-close" id="close-modal"><i class="ti ti-x" aria-hidden="true"></i></button></div>${body}</div></div>`;
   }
 
   function confirmHTML(){const c=S.confirm;return`<div class="confirm-ov"><div class="confirm-box"><div class="confirm-ico">${c.icon||"⚠️"}</div><div class="confirm-ttl">${c.title}</div><div class="confirm-dsc">${c.desc}</div><div class="confirm-row"><button class="btn btn-gray btn-full" id="c-cancel">ยกเลิก</button><button class="btn btn-red btn-full" id="c-ok">${c.ok||"ยืนยัน"}</button></div></div></div>`;}
@@ -554,25 +626,49 @@
       document.querySelectorAll("[data-eb]").forEach(el=>el.addEventListener("click",()=>{const b=S.brands.find(x=>x.docId===el.dataset.eb);set({modal:"edit_brand",mdata:{...b}});}));
       document.querySelectorAll("[data-db]").forEach(el=>el.addEventListener("click",()=>set({confirm:{icon:"🗑️",title:"ลบแบรนด์?",desc:`"${el.dataset.dbn}"\nสินค้าในแบรนด์จะยังอยู่`,ok:"ลบ",onOk:async()=>{await delBrand(el.dataset.db);S.brands=await loadBrands();set({confirm:null});toast("ลบแบรนด์แล้ว","error");}}})));
       // ยืนยัน/ปฏิเสธ — superadmin เท่านั้น
-      document.querySelectorAll("[data-co]").forEach(el=>el.addEventListener("click",async()=>{await updateOrder(el.dataset.co,"ยืนยันแล้ว");S.orders=await loadOrders();set({});toast("✅ ยืนยันออเดอร์แล้ว");}));
-      document.querySelectorAll("[data-ro]").forEach(el=>el.addEventListener("click",async()=>{await updateOrder(el.dataset.ro,"ปฏิเสธ");S.orders=await loadOrders();set({});toast("❌ ปฏิเสธออเดอร์แล้ว","error");}));
+      document.querySelectorAll("[data-co]").forEach(el=>el.addEventListener("click",async()=>{await updateOrder(el.dataset.co,"ยืนยันแล้ว");S.orders=await loadOrders();set({});toast("<i class="ti ti-check" aria-hidden="true"></i> ยืนยันออเดอร์แล้ว");}));
+      document.querySelectorAll("[data-ro]").forEach(el=>el.addEventListener("click",async()=>{await updateOrder(el.dataset.ro,"ปฏิเสธ");S.orders=await loadOrders();set({});toast("<i class="ti ti-x" aria-hidden="true"></i> ปฏิเสธออเดอร์แล้ว","error");}));
       // ✅ บันทึกบัญชีธนาคาร — superadmin เท่านั้น
       document.getElementById("save-bank-btn")?.addEventListener("click",async()=>{
         const bankName=document.getElementById("s-bank-name")?.value.trim();
         const accountNumber=document.getElementById("s-acc-num")?.value.trim();
         const accountHolder=document.getElementById("s-acc-holder")?.value.trim();
+        const logoUrl=document.getElementById("s-bank-logo")?.value||"";
         if(!bankName||!accountNumber||!accountHolder)return toast("กรุณากรอกข้อมูลให้ครบครับ","error");
         const btn=document.getElementById("save-bank-btn");
-        btn.disabled=true;btn.textContent="⏳ กำลังบันทึก...";
+        btn.disabled=true;btn.textContent="กำลังบันทึก...";
         try{
-          await saveBank({bankName,accountNumber,accountHolder});
-          S.bank={bankName,accountNumber,accountHolder};
-          toast("✅ บันทึกข้อมูลบัญชีแล้วค่ะ — ลูกค้าจะเห็นทันที");
+          await saveBank({bankName,accountNumber,accountHolder,logoUrl});
+          S.bank={bankName,accountNumber,accountHolder,logoUrl};
+          toast("บันทึกข้อมูลบัญชีแล้วค่ะ");
           set({tab:"settings"});
         }catch(e){
-          btn.disabled=false;btn.textContent="💾 บันทึกข้อมูลบัญชี";
+          btn.disabled=false;
+          btn.innerHTML='<i class="ti ti-device-floppy" aria-hidden="true"></i> บันทึกข้อมูลบัญชี';
           toast("บันทึกไม่สำเร็จ: "+e.message,"error");
         }
+      });
+      // ✅ อัปโหลดโลโก้ธนาคาร
+      document.getElementById("s-bank-logo-file")?.addEventListener("change",async e=>{
+        const f=e.target.files[0];if(!f)return;
+        try{
+          const b64=await cropCompress(f,200,0.85);
+          document.getElementById("s-bank-logo").value=b64;
+          const preview=document.getElementById("bank-logo-preview");
+          if(preview)preview.src=b64;
+          else{
+            const wrap=document.getElementById("bank-logo-wrap");
+            wrap.innerHTML=`
+              <div class="logo-preview-wrap">
+                <img class="logo-preview-img" id="bank-logo-preview" src="${b64}" style="width:80px;height:80px;border-radius:var(--r);object-fit:cover;border:1px solid var(--border);"/>
+                <button class="logo-preview-change" onclick="document.getElementById('s-bank-logo-file').click()" style="border-radius:var(--r);">เปลี่ยน</button>
+              </div>
+              <div style="font-size:11px;color:var(--green);margin-top:4px;"><i class="ti ti-circle-check" aria-hidden="true"></i> อัปโหลดโลโก้แล้ว</div>
+              <input type="file" id="s-bank-logo-file" accept="image/*" style="display:none"/>
+              <input type="hidden" id="s-bank-logo" value="${b64}"/>`;
+          }
+          toast("อัปโหลดโลโก้แล้วค่ะ");
+        }catch(e){toast("อัปโหลดไม่ได้ครับ","error");}
       });
     }
     // ส่งลิงก์ tracking — ทั้ง superadmin และ admin ทำได้ (หลัง superadmin ยืนยันแล้ว)
@@ -582,7 +678,7 @@
       if(!link)return toast("กรุณาวางลิงก์ติดตามก่อนครับ","error");
       if(!link.startsWith("http"))return toast("ลิงก์ต้องขึ้นต้นด้วย http ครับ","error");
       if(!chatId||chatId==="guest")return toast("ไม่พบ Chat ID ลูกค้าครับ","error");
-      el.disabled=true;el.textContent="⏳ กำลังส่ง...";
+      el.disabled=true;el.textContent="<i class="ti ti-loader" aria-hidden="true"></i> กำลังส่ง...";
       try{
         // ส่งให้ลูกค้า
         const res=await fetch(`https://api.telegram.org/bot${BOT}/sendMessage`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:chatId,parse_mode:"Markdown",text:`🛵 *Rider กำลังมาส่งสินค้าค่ะ!*\n\n📋 เลขออเดอร์: *${orderId}*\n\n🔗 ติดตามสถานะการจัดส่ง:\n${link}\n\nกรุณาเตรียมเงินสดไว้ชำระค่าส่งด้วยนะคะ 😊`})});
@@ -595,7 +691,7 @@
         await updateDoc(doc(db,"orders",docId),{trackingUrl:link,trackingSentAt:serverTimestamp()});
         S.orders=await loadOrders();set({tab:"orders"});
         toast("✅ ส่งลิงก์ให้ลูกค้า + superadmin แล้วค่ะ");
-      }catch(e){el.disabled=false;el.textContent="📤 ส่งให้ลูกค้า";toast("ส่งไม่ได้: "+e.message,"error");}
+      }catch(e){el.disabled=false;el.textContent="<i class="ti ti-send" aria-hidden="true"></i> ส่งให้ลูกค้า";toast("ส่งไม่ได้: "+e.message,"error");}
     }));
   }
 
