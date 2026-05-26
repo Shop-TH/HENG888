@@ -202,59 +202,49 @@
   const BOT="8869386184:AAHopsdsjU9kLdpyq55UJG3acCx8TDhdwA4";
 
   const app=initializeApp(FC);const db=getFirestore(app);
-  const tg=window.Telegram?.WebApp;
-  // ✅ expand ก่อนเสมอ
-  if(tg){tg.expand();tg.ready();}
-  // ✅ รอ WebApp พร้อมก่อนดึง user
-  const U=tg?.initDataUnsafe?.user||null;
+  const tg=window.Telegram?.WebApp||null;
   const fmt=n=>"฿"+Number(n).toLocaleString("th-TH");
+
+  // ── ดึง user จาก Telegram — รองรับทุก case ──
+  function getTgUser(){
+    if(!tg) return null;
+    // case 1: initDataUnsafe พร้อมแล้ว
+    if(tg.initDataUnsafe?.user?.id) return tg.initDataUnsafe.user;
+    // case 2: parse จาก initData string
+    try{
+      const p=new URLSearchParams(tg.initData||"");
+      const u=p.get("user");
+      if(u) return JSON.parse(decodeURIComponent(u));
+    }catch{}
+    return null;
+  }
 
   // ── Auth ──
   let ADMIN=null;
 
   async function checkAuth(){
-    // ① มี Telegram user data
+    const U=getTgUser();
+
     if(U){
       const cid=String(U.id);
+      // superadmin — hardcode ไม่ต้อง Firestore
       if(SUPERADMIN_IDS.includes(cid)){
         ADMIN={chatId:cid,name:U.first_name||"Superadmin",role:"superadmin"};
         return true;
       }
+      // admin — เช็ค Firestore
       try{
-        const timeout=new Promise(r=>setTimeout(()=>r(null),5000));
+        const timeout=new Promise(r=>setTimeout(()=>r(null),6000));
         const snap=await Promise.race([getDoc(doc(db,"admins",cid)),timeout]);
-        if(snap&&snap.exists&&snap.exists()&&snap.data().active){
+        if(snap?.exists?.()&&snap.data().active){
           ADMIN={...snap.data(),chatId:cid};
           return true;
         }
-      }catch(e){console.warn("Firestore auth error:",e);}
+      }catch(e){console.warn("Firestore:",e);}
       return false;
     }
 
-    // ② ไม่มี Telegram user — ลอง initData string แทน (กรณี WebApp ส่ง hash มาแต่ parse ไม่ออก)
-    const initData=tg?.initData||"";
-    if(initData){
-      // parse user จาก initData string โดยตรง
-      try{
-        const params=new URLSearchParams(initData);
-        const userStr=params.get("user");
-        if(userStr){
-          const userObj=JSON.parse(decodeURIComponent(userStr));
-          const cid=String(userObj.id);
-          if(SUPERADMIN_IDS.includes(cid)){
-            ADMIN={chatId:cid,name:userObj.first_name||"Superadmin",role:"superadmin"};
-            return true;
-          }
-          try{
-            const snap=await getDoc(doc(db,"admins",cid));
-            if(snap.exists()&&snap.data().active){ADMIN={...snap.data(),chatId:cid};return true;}
-          }catch{}
-          return false;
-        }
-      }catch(e){console.warn("initData parse error:",e);}
-    }
-
-    // ③ ไม่มีข้อมูล Telegram เลย → แสดง browser login
+    // ไม่มี Telegram data → browser login
     return "browser";
   }
 
@@ -455,14 +445,14 @@
 
     const logoPreview=bk.logoUrl
       ?`<div class="logo-preview-wrap">
-          <img class="logo-preview-img" id="bank-logo-preview" src="${bk.logoUrl}" style="width:80px;height:80px;border-radius:var(--r);object-fit:cover;border:1px solid var(--border);"/>
+          <img class="logo-preview-img" id="bank-logo-preview" src="${bk.logoUrl}" style="width:64px;height:64px;border-radius:var(--r);object-fit:cover;border:1px solid var(--border);"/>
           <button class="logo-preview-change" onclick="document.getElementById('s-bank-logo-file').click()" style="border-radius:var(--r);">เปลี่ยน</button>
         </div>
-        <div style="font-size:11px;color:var(--green);margin-top:4px;"><i class="ti ti-circle-check" aria-hidden="true"></i> มีโลโก้แล้ว</div>`
+        <div style="font-size:11px;color:var(--green);margin-top:4px;"><i class="ti ti-circle-check" aria-hidden="true"></i> มีโลโก้แล้ว (64×64px)</div>`
       :`<div class="logo-upload-zone" onclick="document.getElementById('s-bank-logo-file').click()" style="padding:18px;">
           <div class="logo-upload-ico"><i class="ti ti-building-bank" aria-hidden="true" style="font-size:28px;"></i></div>
           <div class="logo-upload-txt">อัปโหลดโลโก้ธนาคาร</div>
-          <div class="logo-upload-hint">Crop 1:1 อัตโนมัติ · JPG, PNG</div>
+          <div class="logo-upload-hint">Crop 1:1 · ขนาด 64×64px · JPG, PNG</div>
         </div>`;
 
     return`
@@ -472,7 +462,7 @@
       <div style="background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:var(--r-lg);padding:18px 20px;">
         <div style="font-size:10px;font-weight:600;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">บัญชีที่ใช้งานอยู่</div>
         <div style="display:flex;align-items:center;gap:14px;">
-          <div style="width:56px;height:56px;border-radius:var(--r);overflow:hidden;flex-shrink:0;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;">
+          <div style="width:64px;height:64px;border-radius:var(--r);overflow:hidden;flex-shrink:0;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;">
             ${bk.logoUrl
               ?`<img src="${bk.logoUrl}" style="width:100%;height:100%;object-fit:cover;" alt="bank logo"/>`
               :`<i class="ti ti-building-bank" aria-hidden="true" style="font-size:24px;color:var(--text3);"></i>`}
@@ -648,27 +638,52 @@
           toast("บันทึกไม่สำเร็จ: "+e.message,"error");
         }
       });
-      // ✅ อัปโหลดโลโก้ธนาคาร
+      // ✅ อัปโหลดโลโก้ธนาคาร — บีบอัดเป็น Base64 64×64px
       document.getElementById("s-bank-logo-file")?.addEventListener("change",async e=>{
         const f=e.target.files[0];if(!f)return;
         try{
-          const b64=await cropCompress(f,200,0.85);
+          // crop + compress → Base64 64×64px
+          const b64=await new Promise((res,rej)=>{
+            const reader=new FileReader();
+            reader.onerror=rej;
+            reader.onload=ev=>{
+              const img=new Image();
+              img.onerror=rej;
+              img.onload=()=>{
+                const size=64;
+                const sq=Math.min(img.width,img.height);
+                const sx=(img.width-sq)/2;
+                const sy=(img.height-sq)/2;
+                const canvas=document.createElement("canvas");
+                canvas.width=size;canvas.height=size;
+                const ctx=canvas.getContext("2d");
+                ctx.drawImage(img,sx,sy,sq,sq,0,0,size,size);
+                res(canvas.toDataURL("image/png")); // PNG ชัดกว่าสำหรับโลโก้
+              };
+              img.src=ev.target.result;
+            };
+            reader.readAsDataURL(f);
+          });
           document.getElementById("s-bank-logo").value=b64;
           const preview=document.getElementById("bank-logo-preview");
-          if(preview)preview.src=b64;
-          else{
+          if(preview){
+            preview.src=b64;
+          }else{
             const wrap=document.getElementById("bank-logo-wrap");
             wrap.innerHTML=`
               <div class="logo-preview-wrap">
-                <img class="logo-preview-img" id="bank-logo-preview" src="${b64}" style="width:80px;height:80px;border-radius:var(--r);object-fit:cover;border:1px solid var(--border);"/>
+                <img class="logo-preview-img" id="bank-logo-preview" src="${b64}"
+                  style="width:64px;height:64px;border-radius:var(--r);object-fit:cover;border:1px solid var(--border);image-rendering:auto;"/>
                 <button class="logo-preview-change" onclick="document.getElementById('s-bank-logo-file').click()" style="border-radius:var(--r);">เปลี่ยน</button>
               </div>
-              <div style="font-size:11px;color:var(--green);margin-top:4px;"><i class="ti ti-circle-check" aria-hidden="true"></i> อัปโหลดโลโก้แล้ว</div>
+              <div style="font-size:11px;color:var(--green);margin-top:4px;">
+                <i class="ti ti-circle-check" aria-hidden="true"></i> Base64 พร้อมแล้ว (64×64px)
+              </div>
               <input type="file" id="s-bank-logo-file" accept="image/*" style="display:none"/>
               <input type="hidden" id="s-bank-logo" value="${b64}"/>`;
           }
-          toast("อัปโหลดโลโก้แล้วค่ะ");
-        }catch(e){toast("อัปโหลดไม่ได้ครับ","error");}
+          toast("บีบอัดเป็น Base64 แล้วค่ะ (64×64px)");
+        }catch(err){console.error(err);toast("อัปโหลดไม่ได้ครับ","error");}
       });
     }
     // ส่งลิงก์ tracking — ทั้ง superadmin และ admin ทำได้ (หลัง superadmin ยืนยันแล้ว)
@@ -717,20 +732,15 @@
       if(auth===true){await loadAll();set({view:"main"});}
       else if(auth==="browser"){set({view:"browser"});}
       else{set({view:"denied"});}
-    }catch(e){console.error("init error:",e);set({view:"browser"});}
+    }catch(e){
+      console.error("init error:",e);
+      set({view:"browser"});
+    }
   }
 
-  // ✅ รอ Telegram WebApp พร้อมก่อน init
-  // tg.ready() บอก Telegram ว่า WebApp โหลดเสร็จแล้ว
-  // initDataUnsafe จะพร้อมใช้หลัง WebApp script โหลด
-  if(tg){
-    // ถ้า Telegram ส่ง initData มาแล้ว (กรณีเปิดผ่านปุ่ม Bot โดยตรง)
-    tg.ready();
-    init();
-  } else {
-    // เปิดผ่าน Browser โดยตรง
-    init();
-  }
+  // เรียก expand + ready ครั้งเดียว แล้ว init
+  if(tg){tg.expand();tg.ready();}
+  init();
 </script>
 </body>
 </html>
