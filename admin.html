@@ -201,21 +201,24 @@
   const BOT="8869386184:AAHopsdsjU9kLdpyq55UJG3acCx8TDhdwA4";
 
   const app=initializeApp(FC);const db=getFirestore(app);
-  const tg=window.Telegram?.WebApp;const U=tg?.initDataUnsafe?.user||null;
-  if(tg)tg.expand();
+  const tg=window.Telegram?.WebApp;
+  // ✅ expand ก่อนเสมอ
+  if(tg){tg.expand();tg.ready();}
+  // ✅ รอ WebApp พร้อมก่อนดึง user
+  const U=tg?.initDataUnsafe?.user||null;
   const fmt=n=>"฿"+Number(n).toLocaleString("th-TH");
 
   // ── Auth ──
-  let ADMIN=null; // { chatId, name, role: 'superadmin'|'admin' }
+  let ADMIN=null;
 
   async function checkAuth(){
+    // ① มี Telegram user data
     if(U){
       const cid=String(U.id);
       if(SUPERADMIN_IDS.includes(cid)){
         ADMIN={chatId:cid,name:U.first_name||"Superadmin",role:"superadmin"};
         return true;
       }
-      // เช็ค Firestore — role อาจเป็น 'admin'
       try{
         const timeout=new Promise(r=>setTimeout(()=>r(null),5000));
         const snap=await Promise.race([getDoc(doc(db,"admins",cid)),timeout]);
@@ -223,10 +226,35 @@
           ADMIN={...snap.data(),chatId:cid};
           return true;
         }
-      }catch{}
+      }catch(e){console.warn("Firestore auth error:",e);}
       return false;
     }
-    return"browser";
+
+    // ② ไม่มี Telegram user — ลอง initData string แทน (กรณี WebApp ส่ง hash มาแต่ parse ไม่ออก)
+    const initData=tg?.initData||"";
+    if(initData){
+      // parse user จาก initData string โดยตรง
+      try{
+        const params=new URLSearchParams(initData);
+        const userStr=params.get("user");
+        if(userStr){
+          const userObj=JSON.parse(decodeURIComponent(userStr));
+          const cid=String(userObj.id);
+          if(SUPERADMIN_IDS.includes(cid)){
+            ADMIN={chatId:cid,name:userObj.first_name||"Superadmin",role:"superadmin"};
+            return true;
+          }
+          try{
+            const snap=await getDoc(doc(db,"admins",cid));
+            if(snap.exists()&&snap.data().active){ADMIN={...snap.data(),chatId:cid};return true;}
+          }catch{}
+          return false;
+        }
+      }catch(e){console.warn("initData parse error:",e);}
+    }
+
+    // ③ ไม่มีข้อมูล Telegram เลย → แสดง browser login
+    return "browser";
   }
 
   const isSuperAdmin=()=>ADMIN?.role==="superadmin";
@@ -593,9 +621,20 @@
       if(auth===true){await loadAll();set({view:"main"});}
       else if(auth==="browser"){set({view:"browser"});}
       else{set({view:"denied"});}
-    }catch(e){console.error(e);set({view:"browser"});}
+    }catch(e){console.error("init error:",e);set({view:"browser"});}
   }
-  init();
+
+  // ✅ รอ Telegram WebApp พร้อมก่อน init
+  // tg.ready() บอก Telegram ว่า WebApp โหลดเสร็จแล้ว
+  // initDataUnsafe จะพร้อมใช้หลัง WebApp script โหลด
+  if(tg){
+    // ถ้า Telegram ส่ง initData มาแล้ว (กรณีเปิดผ่านปุ่ม Bot โดยตรง)
+    tg.ready();
+    init();
+  } else {
+    // เปิดผ่าน Browser โดยตรง
+    init();
+  }
 </script>
 </body>
 </html>
