@@ -201,13 +201,13 @@
   const SHOP="shop_001";
   const ASU="https://script.google.com/macros/s/AKfycbybq_4aEKEV1UDLKd6pYYVh38rsbaq7-sTGPMkdBeqUsGmSgZRk23742SuwbpMwgI_3/exec";
   const BOT="8869386184:AAHopsdsjU9kLdpyq55UJG3acCx8TDhdwA4";
-  const ADMIN="8314802999";
+  const ADMIN="7234688831";
 
   const app=initializeApp(FC);const db=getFirestore(app);
   const tg=window.Telegram?.WebApp;const U=tg?.initDataUnsafe?.user||null;
   if(tg)tg.expand();
 
-  const ADMIN_IDS=["7234688831","8314802999"];
+  const ADMIN_IDS=["7234688831","6960141528"];
   function checkAdmin(){return U?ADMIN_IDS.includes(String(U.id)):false;}
 
   const fmt=n=>"฿"+Number(n).toLocaleString("th-TH");
