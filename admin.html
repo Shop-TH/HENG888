@@ -264,7 +264,7 @@
 <div id="root"></div>
 <script type="module">
   import{initializeApp}from"https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-  import{getFirestore,doc,getDoc,setDoc,updateDoc,deleteDoc,collection,getDocs,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+  import{getFirestore,doc,getDoc,setDoc,updateDoc,deleteDoc,collection,getDocs,onSnapshot,query,orderBy,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
   const FC={apiKey:"AIzaSyDJ8zikwztSXFHlP_Wh2yD0dkerM-8774U",authDomain:"heng888-c53cf.firebaseapp.com",projectId:"heng888-c53cf",storageBucket:"heng888-c53cf.firebasestorage.app",messagingSenderId:"644962406547",appId:"1:644962406547:web:dd07fe7c6d389c94eabd66"};
   const SHOP="shop_001";
@@ -438,22 +438,29 @@
            " "+d.toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"});
   }
 
-  // ── realtime listener (Firestore onSnapshot) ──
+  // ── realtime listener — ใช้ onSnapshot ที่ import มาแล้ว ──
   let _unsubOrders=null;
   function startOrdersListener(){
-    if(_unsubOrders) return; // ฟัง 1 ครั้ง
+    if(_unsubOrders) return; // ฟังอยู่แล้ว ไม่ต้องเปิดซ้ำ
     try{
-      const {onSnapshot,collection:col,query:q,orderBy}=window._fs||{};
-      // ถ้า import ไม่ได้ก็ข้าม — ใช้ manual refresh แทน
-    }catch{}
-    // ใช้ Firestore onSnapshot ผ่าน import ที่มีอยู่แล้ว
-    import("https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js").then(({onSnapshot,collection,orderBy,query})=>{
       const q=query(collection(db,"orders"),orderBy("createdAt","desc"));
       _unsubOrders=onSnapshot(q,snap=>{
+        // อัปเดต orders ทุกครั้งที่ Firestore เปลี่ยน (ยืนยัน/ปฏิเสธ/ส่งลิงก์)
         S.orders=snap.docs.map(d=>({docId:d.id,...d.data()}));
-        if(S.tab==="orders") set({});
+        if(S.view==="main"&&S.tab==="orders") set({});
+      },err=>{
+        console.warn("onSnapshot error:",err);
+        // fallback: poll ทุก 30 วิ
+        setInterval(async()=>{
+          if(S.tab==="orders"){
+            S.orders=await loadOrders();
+            set({});
+          }
+        },30000);
       });
-    }).catch(()=>{});
+    }catch(e){
+      console.warn("startOrdersListener error:",e);
+    }
   }
 
   function tabOrders(){
