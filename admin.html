@@ -66,8 +66,54 @@
     .od-tl-info{flex:1;}
     .od-tl-label{font-size:13px;color:#ffffff;font-weight:500;}
     .od-tl-time{font-size:11px;color:var(--text3);margin-top:1px;}
-    /* filter tabs */
-    .order-filter{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;}
+    /* ── STATUS PIPELINE (หลอดสถานะ) ── */
+    .status-pipe{display:flex;align-items:center;gap:0;margin-bottom:16px;}
+    .sp-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;}
+    .sp-step::after{content:'';position:absolute;top:13px;left:50%;width:100%;height:2px;background:var(--border2);z-index:0;}
+    .sp-step:last-child::after{display:none;}
+    .sp-dot{width:26px;height:26px;border-radius:50%;border:2px solid var(--border2);background:var(--bg3);display:flex;align-items:center;justify-content:center;position:relative;z-index:1;flex-shrink:0;}
+    .sp-dot.done{border-color:#3ddc84;background:rgba(61,220,132,0.15);}
+    .sp-dot.done i{color:#3ddc84;}
+    .sp-dot.active{border-color:var(--gold);background:rgba(240,192,64,0.15);}
+    .sp-dot.active i{color:var(--gold);}
+    .sp-dot.wait{border-color:var(--border2);background:var(--bg3);}
+    .sp-dot.wait i{color:var(--text3);}
+    .sp-dot.reject{border-color:#ff4d4d;background:rgba(255,77,77,0.12);}
+    .sp-dot.reject i{color:#ff4d4d;}
+    .sp-dot i{font-size:12px;}
+    .sp-label{font-size:9px;color:var(--text3);text-align:center;white-space:nowrap;letter-spacing:0.3px;}
+    .sp-label.done{color:#3ddc84;}
+    .sp-label.active{color:var(--gold);font-weight:600;}
+    .sp-time{font-size:9px;color:var(--text3);text-align:center;}
+    .sp-line-fill{position:absolute;top:13px;left:50%;height:2px;background:linear-gradient(90deg,#3ddc84,#3ddc84);z-index:0;transition:width .3s;}
+
+    /* ── COMPACT PRODUCT GRID ── */
+    .prod-grid-compact{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .prod-card-compact{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;transition:border-color .2s;border-left:3px solid transparent;display:flex;flex-direction:column;}
+    .prod-card-compact:active{background:var(--bg3);}
+    .prod-card-compact.active-prod{border-left-color:var(--gold);}
+    .prod-card-compact.inactive-prod{border-left-color:var(--border2);opacity:0.55;}
+    .pc-img{width:100%;aspect-ratio:1;background:var(--bg3);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+    .pc-img img{width:100%;height:100%;object-fit:cover;}
+    .pc-img i{font-size:28px;color:var(--text3);}
+    .pc-body{padding:8px 10px 10px;}
+    .pc-brand{font-size:9px;letter-spacing:2px;color:var(--gold2);text-transform:uppercase;margin-bottom:2px;font-weight:600;}
+    .pc-name{font-size:12px;font-weight:600;color:#ffffff;line-height:1.4;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:32px;}
+    .pc-price{font-size:13px;font-weight:700;color:var(--gold2);}
+
+    /* ── BRAND BAR ── */
+    .brand-bar{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;}
+    .brand-bar::-webkit-scrollbar{display:none;}
+    .bb-btn{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;border:1px solid var(--border2);background:transparent;font-family:var(--font);font-size:12px;font-weight:600;color:var(--text3);cursor:pointer;transition:all .2s;white-space:nowrap;}
+    .bb-btn.active{background:var(--gold-bg);border-color:var(--gold-bd);color:var(--gold2);}
+    .bb-btn img{width:16px;height:16px;border-radius:50%;object-fit:cover;}
+
+    /* ── STAT ICON สีทอง ── */
+    .stat-ico{font-size:22px;margin-bottom:6px;color:var(--gold2);}
+    .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;}
+    .stat-val{font-size:22px;font-weight:800;color:#ffffff;margin-bottom:2px;}
+    .stat-lbl{font-size:11px;color:var(--text3);font-weight:400;}
+
     .order-filter::-webkit-scrollbar{display:none;}
     .of-btn{flex-shrink:0;padding:5px 14px;border-radius:20px;border:1px solid var(--border2);background:transparent;font-family:var(--font);font-size:12px;font-weight:600;color:var(--text3);cursor:pointer;transition:all .2s;white-space:nowrap;}
     .of-btn.active-wait{background:rgba(255,77,77,0.12);color:#ff4d4d;border-color:rgba(255,77,77,0.3);}
@@ -509,9 +555,34 @@
         (o.trackingUrl?'<div class="tracking-sent"><i class="ti ti-circle-check"></i> ส่งแล้ว</div>':"")+
       '</div></div>':"";
 
+    // ── pipeline สถานะ ──
+    const isOrdered=true;
+    const isConfirmed=!!(o.confirmedAt||o.status==="ยืนยันแล้ว"||o.trackingUrl);
+    const isShipped=!!(o.trackingUrl||o.status==="จัดส่งแล้ว");
+    const isRejected=o.status==="ปฏิเสธ";
+
+    function spStep(dotCls,icon,label,time){
+      return'<div class="sp-step">'+
+        '<div class="sp-dot '+dotCls+'"><i class="ti ti-'+icon+'"></i></div>'+
+        '<span class="sp-label '+dotCls+'">'+label+'</span>'+
+        (time?'<span class="sp-time">'+time+'</span>':'')+
+      '</div>';
+    }
+    const pipe=isRejected?
+      '<div class="status-pipe">'+
+        spStep("done","check","สั่งซื้อ",fmtDate(o.createdAt))+
+        spStep("reject","x","ปฏิเสธ","")+
+      '</div>':
+      '<div class="status-pipe">'+
+        spStep("done","check","สั่งซื้อ",fmtDate(o.createdAt))+
+        spStep(isConfirmed?"done":"active","check",isConfirmed?"ยืนยัน":"รอยืนยัน",isConfirmed?fmtDate(o.confirmedAt):"")+
+        spStep(isShipped?"done":"wait","truck-delivery","ส่งของ",isShipped?fmtDate(o.trackingSentAt):"")+
+      '</div>';
+
     const sc=getStatusCls();
     const body=
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'+
+      // ── header + pipeline ──
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'+
         '<div class="order-id">'+(o.orderId||o.docId)+'</div>'+
         '<span class="or-badge '+sc+'">'+
           (sc==="wait"?'<i class="ti ti-clock" style="font-size:10px;"></i> รอยืนยัน':
@@ -520,6 +591,8 @@
            '<i class="ti ti-x" style="font-size:10px;"></i> ปฏิเสธ')+
         '</span>'+
       '</div>'+
+      // หลอดสถานะ
+      pipe+
 
       '<div class="od-section"><div class="od-section-lbl"><i class="ti ti-user"></i> ข้อมูลลูกค้า</div>'+
         '<div class="od-meta-row"><span class="od-meta-ico"><i class="ti ti-user"></i></span><span class="od-meta-val">'+(o.customerName||"-")+(o.username?" · @"+o.username:"")+'</span></div>'+
@@ -532,10 +605,6 @@
       '<div class="od-section"><div class="od-section-lbl"><i class="ti ti-package"></i> รายการสินค้า</div>'+
         '<div class="od-items">'+itemsHtml+'</div>'+
         (isSuperAdmin()?'<div class="od-total-row"><span class="od-total-lbl">ยอดรวม</span><span class="od-total-val">'+fmt(o.total||0)+'</span></div>':"")+
-      '</div>'+
-
-      '<div class="od-section"><div class="od-section-lbl"><i class="ti ti-timeline"></i> ไทม์ไลน์</div>'+
-        '<div class="od-timeline">'+tlOrdered+tlConfirm+tlShip+'</div>'+
       '</div>'+
 
       actionBtns+trackingBox;
@@ -558,23 +627,49 @@
 
   function tabProds(){
     const low=S.products.filter(p=>(p.stock||0)<=10&&p.active);
-    const html=S.products.map(p=>{
+    const activeBrand=S.activeProdBrand||"all";
+
+    // brand bar
+    const brandBar='<div class="brand-bar">'+
+      '<button class="bb-btn '+(activeBrand==="all"?"active":"")+'" data-pbrand="all">ทั้งหมด ('+S.products.length+')</button>'+
+      S.brands.map(b=>{
+        const cnt=S.products.filter(p=>p.brand===b.key).length;
+        return'<button class="bb-btn '+(activeBrand===b.key?"active":"")+'" data-pbrand="'+b.key+'">'+
+          (b.logoUrl?'<img src="'+b.logoUrl+'" alt="'+b.name+'"/>':'')+
+          b.name+' ('+cnt+')'+
+        '</button>';
+      }).join("")+
+    '</div>';
+
+    const filtered=activeBrand==="all"?S.products:S.products.filter(p=>p.brand===activeBrand);
+
+    const grid=filtered.map(p=>{
       const b=S.brands.find(x=>x.key===p.brand);
-      const color=p.active?"var(--gold)":"var(--border)";
-      return'<div class="prod-item" style="border-left-color:'+color+'">'+
-        '<div class="prod-thumb">'+(p.imageUrl?'<img src="'+p.imageUrl+'" onerror="this.style.display=\'none\'"/>':'<i class="ti ti-droplet" style="font-size:22px;color:var(--text3);"></i>')+'</div>'+
-        '<div class="prod-info"><div class="prod-name">'+p.name+'</div>'+
-        '<div class="prod-meta"><span class="badge badge-gold">'+(b?.name||p.brand)+'</span><span class="badge '+(p.active?"badge-green":"badge-gray")+'">'+(p.active?"แสดง":"ซ่อน")+'</span><span class="badge '+(( p.stock||0)<=5?"badge-red":(p.stock||0)<=10?"badge-gold":"badge-gray")+'"><i class="ti ti-package" style="font-size:11px;"></i> '+(p.stock||0)+'</span></div>'+
-        '<div class="prod-price">'+fmt(p.price)+'</div></div>'+
-        '<div class="prod-actions">'+
-        '<button class="btn btn-outline btn-icon btn-sm" data-ep="'+p.docId+'"><i class="ti ti-edit"></i></button>'+
-        '<button class="btn btn-gray btn-icon btn-sm" data-sp="'+p.docId+'"><i class="ti ti-package"></i></button>'+
-        '<button class="btn '+(p.active?"btn-gray":"btn-green")+' btn-icon btn-sm" data-tp="'+p.docId+'" data-ta="'+p.active+'"><i class="ti ti-'+(p.active?"eye-off":"eye")+'"></i></button>'+
-        '<button class="btn btn-red btn-icon btn-sm" data-dp="'+p.docId+'" data-dn="'+p.name+'"><i class="ti ti-trash"></i></button>'+
-        '</div></div>';
-    }).join("")||'<div class="empty"><i class="ti ti-package-off" style="font-size:40px;margin-bottom:10px;display:block;"></i><div>ยังไม่มีสินค้าครับ</div></div>';
-    return(low.length>0?'<div class="alert"><i class="ti ti-alert-triangle"></i> สินค้าสต็อกต่ำ '+low.length+' รายการ (≤10 ชิ้น)</div>':"")+
-      '<div class="card-head"><div class="card-title">สินค้า ('+S.products.length+')</div><button class="btn btn-gold" id="add-prod"><i class="ti ti-plus"></i> เพิ่มสินค้า</button></div>'+html;
+      return'<div class="prod-card-compact '+(p.active?"active-prod":"inactive-prod")+'" data-ep="'+p.docId+'">'+
+        '<div class="pc-img">'+
+          (p.imageUrl?'<img src="'+p.imageUrl+'" onerror="this.style.display=\'none\'"/>':"")+'<i class="ti ti-droplet" style="'+(p.imageUrl?"display:none":"")+'"></i>'+
+        '</div>'+
+        '<div class="pc-body">'+
+          '<div class="pc-brand">'+(b?.name||p.brand||"")+'</div>'+
+          '<div class="pc-name">'+p.name+'</div>'+
+          '<div style="display:flex;justify-content:space-between;align-items:center;">'+
+            '<div class="pc-price">'+fmt(p.price)+'</div>'+
+            '<div class="badge '+(p.active?"badge-green":"badge-gray")+'" style="font-size:9px;">'+(p.active?"แสดง":"ซ่อน")+'</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+    }).join("")||'<div class="empty" style="grid-column:1/-1;"><i class="ti ti-package-off" style="font-size:40px;margin-bottom:10px;display:block;"></i><div>ไม่มีสินค้า</div></div>';
+
+    return(low.length>0?'<div class="alert"><i class="ti ti-alert-triangle"></i> สต็อกต่ำ '+low.length+' รายการ (≤10 ชิ้น)</div>':"")+
+      '<div class="card-head">'+
+        '<div class="card-title">สินค้า ('+S.products.length+')</div>'+
+        '<div style="display:flex;gap:6px;">'+
+          '<button class="btn btn-outline btn-sm" id="add-brand"><i class="ti ti-plus"></i> แบรนด์</button>'+
+          '<button class="btn btn-gold btn-sm" id="add-prod"><i class="ti ti-plus"></i> สินค้า</button>'+
+        '</div>'+
+      '</div>'+
+      brandBar+
+      '<div class="prod-grid-compact">'+grid+'</div>';
   }
 
   function tabStats(){
@@ -582,17 +677,24 @@
     const low=S.products.filter(p=>(p.stock||0)<=10).length;
     const val=S.products.reduce((s,p)=>s+(p.price*(p.stock||0)),0);
     const conf=S.orders.filter(o=>o.status==="ยืนยันแล้ว").length;
-    const rev=S.orders.filter(o=>o.status==="ยืนยันแล้ว").reduce((s,o)=>s+(o.total||0),0);
+    const rev=S.orders.filter(o=>o.status==="ยืนยันแล้ว"||o.status==="จัดส่งแล้ว").reduce((s,o)=>s+(o.total||0),0);
+    const shipped=S.orders.filter(o=>o.status==="จัดส่งแล้ว"||!!o.trackingUrl).length;
     const cards=[
-      ["ti-package",S.products.length,"SKU ทั้งหมด"],
-      ["ti-eye",active,"SKU แสดง"],
-      ["ti-alert-triangle",low+" รายการ","สต็อกต่ำ"],
-      ["ti-coin",fmt(val),"มูลค่าสต็อก"],
-      ["ti-clipboard-list",S.orders.length,"ออเดอร์"],
-      ["ti-trophy",conf,"ยืนยันแล้ว"],
-      ["ti-cash",fmt(rev),"ยอดขาย COD"],
-      ["ti-tag",S.brands.length,"แบรนด์"]
-    ].map(([ic,v,l])=>'<div class="stat-card"><div class="stat-ico"><i class="ti '+ic+'"></i></div><div class="stat-val">'+v+'</div><div class="stat-lbl">'+l+'</div></div>').join("");
+      ["ti-clipboard-list",S.orders.length,"ออเดอร์ทั้งหมด","var(--gold2)"],
+      ["ti-clock",S.orders.filter(o=>!o.status||o.status==="รอตรวจสอบ").length,"รอยืนยัน","#ff4d4d"],
+      ["ti-check",conf,"ยืนยันแล้ว","var(--gold)"],
+      ["ti-truck-delivery",shipped,"จัดส่งแล้ว","#3ddc84"],
+      ["ti-cash",fmt(rev),"ยอดขาย","var(--gold2)"],
+      ["ti-package",S.products.length,"SKU ทั้งหมด","var(--gold2)"],
+      ["ti-eye",active,"SKU แสดง","#3ddc84"],
+      ["ti-tag",S.brands.length,"แบรนด์","var(--gold2)"],
+    ].map(([ic,v,l,color])=>
+      '<div class="stat-card">'+
+        '<div class="stat-ico"><i class="ti '+ic+'" style="color:'+color+';font-size:22px;"></i></div>'+
+        '<div class="stat-val">'+v+'</div>'+
+        '<div class="stat-lbl">'+l+'</div>'+
+      '</div>'
+    ).join("");
     return'<div class="stat-grid">'+cards+'</div>';
   }
 
@@ -700,6 +802,18 @@
     document.querySelectorAll("[data-view-order]").forEach(el=>el.addEventListener("click",()=>{
       orderDetailModal(el.dataset.viewOrder);
     }));
+    // ── brand bar filter (หน้าสินค้า) ──
+    document.querySelectorAll("[data-pbrand]").forEach(el=>el.addEventListener("click",()=>{
+      S.activeProdBrand=el.dataset.pbrand;set({});
+    }));
+
+    // ── กดการ์ดสินค้า compact → เปิด edit modal ──
+    document.querySelectorAll(".prod-card-compact[data-ep]").forEach(el=>el.addEventListener("click",e=>{
+      e.stopPropagation();
+      const p=S.products.find(x=>x.docId===el.dataset.ep);
+      if(p) set({modal:"edit_prod",mdata:{...p}});
+    }));
+
     if(isSuperAdmin()){
       document.getElementById("add-prod")?.addEventListener("click",()=>set({modal:"add_prod",mdata:{active:true,brand:S.brands[0]?.key}}));
       document.getElementById("add-brand")?.addEventListener("click",()=>set({modal:"add_brand",mdata:{}}));
