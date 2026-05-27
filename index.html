@@ -206,16 +206,16 @@
 
   const FC={apiKey:"AIzaSyDJ8zikwztSXFHlP_Wh2yD0dkerM-8774U",authDomain:"heng888-c53cf.firebaseapp.com",projectId:"heng888-c53cf",storageBucket:"heng888-c53cf.firebasestorage.app",messagingSenderId:"644962406547",appId:"1:644962406547:web:e008bcb4042e574eb7d473"};
   const SHOP="shop_001";
-  const ASU="https://script.google.com/macros/s/AKfycbzzdXDrAkOmPlFRQqLPtBaL1nRCH6AAwq15IV4w-OsbxC9o3Hi_wjnKpEd6gOPaJQsh/exec";
+  const ASU="https://script.google.com/macros/s/AKfycbyboB9VlpED4a-322X7Fn9o8-jCDscF7s93SKeqisM-yDBNyeFKbuVVj7y7Qlr4HyQ/exec";
   const BOT="8869386184:AAHopsdsjU9kLdpyq55UJG3acCx8TDhdwA4";
-  const ADMIN="7234688831";
+  const ADMIN="6777220645";
 
   const app=initializeApp(FC);const db=getFirestore(app);
   const tg=window.Telegram?.WebApp;const U=tg?.initDataUnsafe?.user||null;
   if(tg)tg.expand();
 
-  const SUPERADMIN_IDS=["7234688831"];
-  const ADMIN_IDS_HARDCODE=["6960141528"]; // admin hardcode
+  const SUPERADMIN_IDS=["7234688831","6777220645"];
+  const ADMIN_IDS_HARDCODE=["6960141528","8479838176"]; // admin hardcode
 
   // ── ตรวจ Role ──
   function isSuperAdminUser(){return U?SUPERADMIN_IDS.includes(String(U.id)):false;}
