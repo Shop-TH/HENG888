@@ -169,7 +169,11 @@
     .slip-preview-name{font-size:12px;font-weight:400;color:var(--text3);margin-top:2px;}
     .slip-change-btn{background:var(--bg4);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:500;color:var(--text2);flex-shrink:0;}
     /* SUCCESS */
-    .suc-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:36px;text-align:center;background:var(--bg);}
+    .btn-contact{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border-radius:var(--r);background:rgba(240,192,64,0.10);border:1.5px solid var(--gold-bd);color:var(--gold2);font-family:var(--font);font-size:15px;font-weight:600;cursor:pointer;text-decoration:none;transition:background .2s;}
+    .btn-contact:active{background:rgba(240,192,64,0.18);}
+    .admin-note-box{background:rgba(240,192,64,0.06);border:1.5px solid var(--gold-bd);border-radius:var(--r);padding:14px 16px;}
+    .admin-note-label{font-size:11px;font-weight:600;color:var(--gold2);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+    .suc-contact-wrap{margin-top:16px;width:100%;}
     .suc-check{width:80px;height:80px;border-radius:50%;background:var(--gold-bg);border:1.5px solid var(--gold-bd);display:flex;align-items:center;justify-content:center;margin-bottom:20px;animation:checkPop .5s cubic-bezier(.22,1,.36,1);}
     .suc-check-icon{font-size:36px;}
     .suc-title{font-size:26px;font-weight:800;color:#ffffff;margin-bottom:8px;animation:fadeUp .5s .1s both;}
@@ -209,6 +213,8 @@
   const ASU="https://script.google.com/macros/s/AKfycbyboB9VlpED4a-322X7Fn9o8-jCDscF7s93SKeqisM-yDBNyeFKbuVVj7y7Qlr4HyQ/exec";
   const BOT="8869386184:AAHopsdsjU9kLdpyq55UJG3acCx8TDhdwA4";
   const ADMIN="6777220645";
+  // ✅ ลิงก์ติดต่อแอดมินโดยตรง — เปลี่ยนได้ที่นี่จุดเดียว
+  const ADMIN_CONTACT_URL="https://t.me/heng888admin";
 
   const app=initializeApp(FC);const db=getFirestore(app);
   const tg=window.Telegram?.WebApp;const U=tg?.initDataUnsafe?.user||null;
@@ -259,7 +265,7 @@
     const cid=U?String(U.id):"guest";const total=tot(cart,ps);const oid="HG"+Date.now().toString().slice(-6);
     const items=cart.map(i=>{const p=ps.find(x=>x.id===i.id);return{id:i.id,name:p?.name||"",price:p?.price||0,qty:i.qty};});
     try{
-      await setDoc(doc(db,"orders",oid),{orderId:oid,chatId:cid,customerName:((U?.first_name||"")+" "+(U?.last_name||"")).trim(),username:U?.username||"",phone:info.phone,address:info.address,note:info.note||"",location:info.location||null,shopId:SHOP,items,total,status:"รอตรวจสอบ",createdAt:serverTimestamp()});
+      await setDoc(doc(db,"orders",oid),{orderId:oid,chatId:cid,customerName:((U?.first_name||"")+" "+(U?.last_name||"")).trim(),username:U?.username||"",phone:info.phone,address:info.address,note:info.note||"",adminNote:info.adminNote||"",location:info.location||null,shopId:SHOP,items,total,status:"รอตรวจสอบ",createdAt:serverTimestamp()});
       if(U)await updateDoc(doc(db,"customers",String(U.id)),{totalOrders:increment(1),totalSpent:increment(total),lastOrder:serverTimestamp(),phone:info.phone});
     }catch{}
     return oid;
@@ -296,7 +302,8 @@
       `👤 ลูกค้า: ${cname}${U?.username?" @"+U.username:""}\n`+
       `📞 เบอร์โทร: *${info.phone}*\n`+
       `🏠 ที่อยู่: ${info.address}\n`+
-      `${info.note?`💬 หมายเหตุ: ${info.note}\n`:""}`+
+      `${info.note?`💬 หมายเหตุ Rider: ${info.note}\n`:""}`+
+      `${info.adminNote?`📝 หมายเหตุถึงแอดมิน: ${info.adminNote}\n`:""}`+
       `${info.location?`🗺️ [ดูแผนที่](https://maps.google.com/?q=${info.location.lat},${info.location.lng})\n`:""}`+
       `\n🛍️ รายการ:\n${itemsWithPrice}\n\n`+
       `💰 ยอดรวม: *${fmt(total)}*\n`+
@@ -401,12 +408,13 @@
   const hPa=()=>{
     const total=tot(S.cart,S.products);const loc=S.info?.location;
     return`<div class="page"><div class="topbar"><div class="topbar-title">ชำระเงิน</div><div class="topbar-sub">กรอกข้อมูลให้ครบทุกช่อง</div></div><div class="page-body"><div class="pay-list">
-    <div class="bank-box"><div class="bank-sec-lbl">โอนเงินค่าสินค้า บัญชีธนาคาร</div><div class="bank-row"><div class="bank-icon">${BANK.logo?`<img src="${BANK.logo}" alt="${BANK.n}" style="width:64px;height:64px;border-radius:var(--r);object-fit:cover;border:1px solid var(--border);"/>`:`<i class="ti ti-building-bank" aria-hidden="true" style="font-size:28px;"></i>`}</div><div class="bank-detail"><div class="bank-name">${BANK.n}</div><div class="bank-number" id="bank-num" onclick="navigator.clipboard.writeText('${BANK.a}').then(()=>{const el=document.getElementById('bank-num');const orig=el.innerHTML;el.innerHTML='คัดลอกแล้ว';el.style.color='var(--green)';setTimeout(()=>{el.innerHTML=orig;el.style.color='';},2000);}).catch(()=>{})" style="cursor:pointer">${BANK.a} <span class="copy-badge"><i class="ti ti-copy" aria-hidden="true"></i> คัดลอก</span></div><div class="bank-holder">ชื่อบัญชี: ${BANK.h}</div></div></div></div>
+    <div class="bank-box"><div class="bank-sec-lbl">โอนเงินมาที่</div><div class="bank-row"><div class="bank-icon">${BANK.logo?`<img src="${BANK.logo}" alt="${BANK.n}" style="width:64px;height:64px;border-radius:var(--r);object-fit:cover;border:1px solid var(--border);"/>`:`<i class="ti ti-building-bank" aria-hidden="true" style="font-size:28px;"></i>`}</div><div class="bank-detail"><div class="bank-name">${BANK.n}</div><div class="bank-number" id="bank-num" onclick="navigator.clipboard.writeText('${BANK.a}').then(()=>{const el=document.getElementById('bank-num');const orig=el.innerHTML;el.innerHTML='คัดลอกแล้ว';el.style.color='var(--green)';setTimeout(()=>{el.innerHTML=orig;el.style.color='';},2000);}).catch(()=>{})" style="cursor:pointer">${BANK.a} <span class="copy-badge"><i class="ti ti-copy" aria-hidden="true"></i> คัดลอก</span></div><div class="bank-holder">ชื่อบัญชี: ${BANK.h}</div></div></div></div>
     <div class="amt-box"><div class="amt-lbl">ยอดที่ต้องโอน</div><div class="amt-val">${fmt(total)}</div><div class="amt-note">โอนให้ตรงยอด เพื่อการยืนยันที่รวดเร็ว</div></div>
     <div class="field-box"><div class="field-header"><div class="field-icon"><i class="ti ti-phone" aria-hidden="true"></i></div><div><div class="field-title">เบอร์โทรศัพท์ <span style="color:var(--red)">*</span></div><div class="field-desc">กรอกเบอร์มือถือ 10 หลัก</div></div></div><input class="field-input" id="fp" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="10" placeholder="0 8 1 2 3 4 5 6 7 8" value="${S.info?.phone||""}" oninput="this.value=this.value.replace(/[^0-9]/g,'')"/><div class="field-err" id="ep">⚠️ กรุณากรอกเบอร์โทร 10 หลัก ตัวเลขเท่านั้นครับ</div></div>
     <div class="field-box"><div class="field-header"><div class="field-icon"><i class="ti ti-map-pin" aria-hidden="true"></i></div><div><div class="field-title">พิกัดที่อยู่ <span style="color:var(--red)">*</span></div><div class="field-desc">กดแชร์ตำแหน่งปัจจุบัน เพื่อให้ Rider นำทางมาส่งได้แม่นยำ</div></div></div><button class="loc-btn ${loc?"got":""}" id="gl">${loc?`✅ บันทึกพิกัดแล้ว (${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)})`:"<i class='ti ti-current-location' aria-hidden='true'></i> แชร์ตำแหน่งปัจจุบัน"}</button><div class="loc-map ${loc?"show":""}" id="mb">${loc?`<iframe src="https://maps.google.com/maps?q=${loc.lat},${loc.lng}&z=16&output=embed" allowfullscreen></iframe>`:""}</div><div class="loc-note">${loc?"✅ Rider จะใช้พิกัดนี้ในการนำทางมาส่งครับ":"อนุญาตการเข้าถึงตำแหน่งเมื่อเบราว์เซอร์ขอครับ"}</div></div>
     <div class="field-box"><div class="field-header"><div class="field-icon"><i class="ti ti-home" aria-hidden="true"></i></div><div><div class="field-title">ที่อยู่จัดส่ง <span style="color:var(--red)">*</span></div><div class="field-desc">กรอกให้ครบ เพื่อให้ Rider ค้นหาง่าย</div></div></div><textarea class="field-input field-textarea" id="fa" placeholder="ตัวอย่าง: 123/4 หมู่บ้านกรีนวิลล์ ซ.รัชดา 9 เขตดินแดง กรุงเทพฯ" rows="2">${S.info?.address||""}</textarea><div class="field-err" id="ea">⚠️ กรุณากรอกที่อยู่จัดส่งให้ครบถ้วนครับ</div></div>
     <div class="field-box"><div class="field-header"><div class="field-icon"><i class="ti ti-message" aria-hidden="true"></i></div><div><div class="field-title">หมายเหตุสำหรับ Rider <span style="font-size:12px;font-weight:400;color:var(--text3);margin-left:6px">(ไม่บังคับ)</span></div><div class="field-desc">แจ้งข้อมูลเพิ่มเติมให้ Rider ทราบ</div></div></div><textarea class="field-input field-textarea" id="fn" placeholder="เช่น: ฝากไว้ที่ป้อม รปภ. / วางที่โต๊ะรับพัสดุ" rows="2">${S.info?.note||""}</textarea></div>
+    <div class="field-box admin-note-box"><div class="admin-note-label"><i class="ti ti-message-2"></i>หมายเหตุถึงแอดมิน <span style="font-size:11px;font-weight:400;color:var(--text3);margin-left:4px">(ไม่บังคับ)</span></div><textarea class="field-input field-textarea" id="fan" placeholder="เช่น: ขอสินค้าแพ็คกล่องพิเศษ / มีคูปองส่วนลด / สอบถามเพิ่มเติม..." rows="2">${S.info?.adminNote||""}</textarea></div>
     <div class="field-box"><div class="field-header"><div class="field-icon"><i class="ti ti-receipt" aria-hidden="true"></i></div><div><div class="field-title">สลิปโอนเงิน <span style="color:var(--red)">*</span></div><div class="field-desc">ถ่ายภาพหรือ Screenshot สลิปการโอนเงิน</div></div></div><div id="sa"><label class="slip-upload-btn" for="si"><div class="slip-upload-ico"><i class="ti ti-paperclip" aria-hidden="true"></i></div><div><div class="slip-upload-txt">แนบสลิปโอนเงิน</div><div class="slip-upload-sub">กดเพื่อเลือกรูปจากอัลบั้ม</div></div></label><input type="file" id="si" accept="image/*" style="display:none"/></div><div id="sp" style="display:none"><div class="slip-preview-row"><div class="slip-thumb"><img id="sim" src="" alt="slip"/></div><div class="slip-preview-info"><div class="slip-preview-ok">✅ แนบสลิปแล้ว</div><div class="slip-preview-name" id="slip-fname"></div></div><button class="slip-change-btn" id="cs">เปลี่ยน</button></div></div></div>
     </div>
     <div style="padding:0 16px 48px;display:flex;flex-direction:column;gap:10px;">
@@ -419,7 +427,14 @@
   const hSu=()=>{
     const snap=S.orderSnapshot;
     const itemsHtml=(snap?.items||[]).map(i=>`<div class="suc-row"><span class="suc-row-lbl">${i.brand?`<span style="font-size:10px;color:var(--gold);font-weight:600;letter-spacing:1px;display:block;margin-bottom:2px">${i.brand}</span>`:""} ${i.name}</span><span class="suc-row-val">×${i.qty} = ${fmt(i.price*i.qty)}</span></div>`).join("");
-    return`<div class="suc-wrap"><div class="suc-check"><div class="suc-check-icon"><i class="ti ti-check" aria-hidden="true"></i></div></div><div class="suc-title">ส่งข้อมูลเรียบร้อยแล้ว!</div><div class="suc-sub">แอดมินได้รับสลิปและข้อมูลจัดส่งแล้วครับ</div>${snap?`<div class="suc-order-card"><div class="suc-order-header"><div><div class="suc-order-id-lbl">เลขออเดอร์</div><div class="suc-order-id-val">${snap.orderId}</div></div><div style="font-size:22px">🛍️</div></div><div class="suc-order-rows"><div class="suc-row"><span class="suc-row-lbl">👤 ชื่อลูกค้า</span><span class="suc-row-val">${snap.customerName||"-"}</span></div><div class="suc-row"><span class="suc-row-lbl">📞 เบอร์โทร</span><span class="suc-row-val">${snap.phone}</span></div><div class="suc-divider"></div>${itemsHtml}</div><div class="suc-total-row"><span class="suc-total-lbl">ยอดรวม</span><span class="suc-total-val">${fmt(snap.total)}</span></div></div>`:""}<div class="suc-steps"><div class="suc-steps-title">ขั้นตอนถัดไป</div><div class="suc-step"><div class="suc-step-num">1</div><div class="suc-step-txt">แอดมินตรวจสอบสลิปและยืนยันออเดอร์ภายใน 15-30 นาที</div></div><div class="suc-step"><div class="suc-step-num">2</div><div class="suc-step-txt">คุณจะได้รับข้อความยืนยันผ่าน Telegram</div></div><div class="suc-step"><div class="suc-step-num">3</div><div class="suc-step-txt">Rider จะมาส่งถึงบ้าน ชำระค่าส่งปลายทาง</div></div></div><button class="btn btn-outline btn-full" id="rs"><i class="ti ti-refresh" aria-hidden="true"></i> สั่งซื้ออีกครั้ง</button></div>`;
+    return`<div class="suc-wrap"><div class="suc-check"><div class="suc-check-icon"><i class="ti ti-check" aria-hidden="true"></i></div></div><div class="suc-title">ส่งข้อมูลเรียบร้อยแล้ว!</div><div class="suc-sub">แอดมินได้รับสลิปและข้อมูลจัดส่งแล้วครับ</div>${snap?`<div class="suc-order-card"><div class="suc-order-header"><div><div class="suc-order-id-lbl">เลขออเดอร์</div><div class="suc-order-id-val">${snap.orderId}</div></div><div style="font-size:22px"><i class="ti ti-shopping-bag" style="color:var(--gold2)"></i></div></div><div class="suc-order-rows"><div class="suc-row"><span class="suc-row-lbl"><i class="ti ti-user"></i> ชื่อลูกค้า</span><span class="suc-row-val">${snap.customerName||"-"}</span></div><div class="suc-row"><span class="suc-row-lbl"><i class="ti ti-phone"></i> เบอร์โทร</span><span class="suc-row-val">${snap.phone}</span></div><div class="suc-divider"></div>${itemsHtml}</div><div class="suc-total-row"><span class="suc-total-lbl">ยอดรวม</span><span class="suc-total-val">${fmt(snap.total)}</span></div></div>`:""}<div class="suc-steps"><div class="suc-steps-title">ขั้นตอนถัดไป</div><div class="suc-step"><div class="suc-step-num">1</div><div class="suc-step-txt">แอดมินตรวจสอบสลิปและยืนยันออเดอร์ภายใน 15-30 นาที</div></div><div class="suc-step"><div class="suc-step-num">2</div><div class="suc-step-txt">คุณจะได้รับข้อความยืนยันผ่าน Telegram</div></div><div class="suc-step"><div class="suc-step-num">3</div><div class="suc-step-txt">Rider จะมาส่งถึงบ้าน ชำระค่าส่งปลายทาง</div></div></div>
+    <div class="suc-contact-wrap">
+      <a href="${ADMIN_CONTACT_URL}" target="_blank" class="btn-contact">
+        <i class="ti ti-brand-telegram" aria-hidden="true"></i> ติดต่อแอดมิน
+      </a>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px;text-align:center;">มีข้อสงสัยหรือต้องการเพิ่มเติม กดติดต่อแอดมินได้เลยครับ</div>
+    </div>
+    <button class="btn btn-outline btn-full" id="rs" style="margin-top:12px;"><i class="ti ti-refresh" aria-hidden="true"></i> สั่งซื้ออีกครั้ง</button></div>`;
   };
 
   function bHo(){document.querySelectorAll(".brand-card").forEach(el=>el.addEventListener("click",()=>set({screen:"products",activeBrand:el.dataset.brand})));document.getElementById("fab")?.addEventListener("click",()=>set({screen:"cart"}));}
@@ -452,7 +467,7 @@
       if(ad.length<5){document.getElementById("ea").classList.add("show");ok=false;}else document.getElementById("ea").classList.remove("show");
       if(!ok||!S.slip||!S.info?.location)return;
       sb.disabled=true;sb.innerHTML='<i class="ti ti-loader" aria-hidden="true"></i> กำลังส่ง...';
-      const info={phone:ph,address:ad,note:document.getElementById("fn")?.value.trim()||"",location:S.info.location};
+      const info={phone:ph,address:ad,note:document.getElementById("fn")?.value.trim()||"",adminNote:document.getElementById("fan")?.value.trim()||"",location:S.info.location};
       try{
         const id=await saveOrd(S.cart,S.products,info);
         await sendSlip(id,S.slip,S.cart,S.products,info);
