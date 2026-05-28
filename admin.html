@@ -638,7 +638,8 @@
         '<div class="od-meta-row"><span class="od-meta-ico"><i class="ti ti-user"></i></span><span class="od-meta-val">'+(o.customerName||"-")+(o.username?" · @"+o.username:"")+'</span></div>'+
         '<div class="od-meta-row"><span class="od-meta-ico"><i class="ti ti-phone"></i></span><span class="od-meta-val">'+(o.phone||"-")+'</span></div>'+
         '<div class="od-meta-row"><span class="od-meta-ico"><i class="ti ti-home"></i></span><span class="od-meta-val">'+(o.address||"-")+'</span></div>'+
-        (o.note?'<div class="od-meta-row"><span class="od-meta-ico"><i class="ti ti-message"></i></span><span class="od-meta-val">'+o.note+'</span></div>':"")+
+        (o.note?'<div class="od-meta-row"><span class="od-meta-ico"><i class="ti ti-message"></i></span><span class="od-meta-val">Rider: '+o.note+'</span></div>':"")+
+        (o.adminNote?'<div class="od-meta-row"><span class="od-meta-ico"><i class="ti ti-message-2" style="color:var(--gold2);"></i></span><span class="od-meta-val" style="color:var(--gold2);font-weight:500;">หมายเหตุแอดมิน: '+o.adminNote+'</span></div>':"")+
         locHtml+
       '</div>'+
 
