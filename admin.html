@@ -262,48 +262,17 @@
 </head>
 <body>
 <div id="root"></div>
-<!-- Firebase Compat SDK — ใช้แทน ESM เพราะ Telegram WebApp บล็อก ESM CDN imports -->
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-<script>
+<script type="module">
+  import{initializeApp}from"https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+  import{getFirestore,doc,getDoc,setDoc,updateDoc,deleteDoc,collection,getDocs,onSnapshot,query,orderBy,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
   const FC={apiKey:"AIzaSyDJ8zikwztSXFHlP_Wh2yD0dkerM-8774U",authDomain:"heng888-c53cf.firebaseapp.com",projectId:"heng888-c53cf",storageBucket:"heng888-c53cf.firebasestorage.app",messagingSenderId:"644962406547",appId:"1:644962406547:web:dd07fe7c6d389c94eabd66"};
-  firebase.initializeApp(FC);
-  const db=firebase.firestore();
-
-  const serverTimestamp=()=>firebase.firestore.FieldValue.serverTimestamp();
-
-  // wrapper ให้ใช้ API เดิมได้
-  async function getDocs(ref){return ref.get();}
-  async function getDoc(ref){return ref.get();}
-  async function setDoc(ref,data,opts){return opts?.merge?ref.set(data,{merge:true}):ref.set(data);}
-  async function updateDoc(ref,data){return ref.update(data);}
-  async function deleteDoc(ref){return ref.delete();}
-  function collection(db,...args){
-    if(args.length===1) return db.collection(args[0]);
-    return db.collection(args[0]).doc(args[1]).collection(args[2]);
-  }
-  function doc(db,...args){
-    if(args.length===2) return db.collection(args[0]).doc(args[1]);
-    if(args.length===4) return db.collection(args[0]).doc(args[1]).collection(args[2]).doc(args[3]);
-    return db.collection(args[0]).doc(args[1]);
-  }
-  function query(ref,...constraints){
-    let q=ref;
-    constraints.forEach(c=>{
-      if(c._type==="where") q=q.where(c.field,c.op,c.val);
-      if(c._type==="orderBy") q=q.orderBy(c.field,c.dir);
-    });
-    return q;
-  }
-  function where(field,op,val){return{_type:"where",field,op,val};}
-  function orderBy(field,dir="asc"){return{_type:"orderBy",field,dir};}
-  // onSnapshot ใช้ Compat API โดยตรง
-  function onSnapshot(ref,onNext,onErr){return ref.onSnapshot(onNext,onErr);}
-
   const SHOP="shop_001";
   const SUPERADMIN_IDS=["7234688831","6777220645"];
   const BOT="8869386184:AAHopsdsjU9kLdpyq55UJG3acCx8TDhdwA4";
 
+  const app=initializeApp(FC);
+  const db=getFirestore(app);
   const tg=window.Telegram?.WebApp||null;
   const fmt=n=>"฿"+Number(n).toLocaleString("th-TH");
 
@@ -499,17 +468,17 @@
   }
 
   function startOrdersListener(){
-    if(_pollTimer) return;
+    if(_pollTimer)return;
     _pollTimer=setInterval(()=>refreshOrders(),10000);
     document.addEventListener("visibilitychange",()=>{
-      if(document.visibilityState==="visible") refreshOrders(true);
+      if(document.visibilityState==="visible")refreshOrders(true);
     });
-    // onSnapshot ด้วย Compat API โดยตรง (ไม่ผ่าน wrapper)
     try{
-      db.collection("orders").orderBy("createdAt","desc").onSnapshot(snap=>{
+      const q=query(collection(db,"orders"),orderBy("createdAt","desc"));
+      onSnapshot(q,snap=>{
         S.orders=snap.docs.map(d=>({docId:d.id,...d.data()}));
         _lastRefresh=Date.now();
-        if(S.view==="main"&&S.tab==="orders") set({});
+        if(S.view==="main"&&S.tab==="orders")set({});
       },err=>console.warn("onSnapshot:",err.code));
     }catch(e){console.warn("startOrdersListener:",e);}
   }
@@ -809,7 +778,7 @@
         '<div>'+
           '<div style="font-size:12px;color:var(--green);display:flex;align-items:center;gap:4px;margin-bottom:4px;"><i class="ti ti-circle-check"></i> อัปโหลดแล้ว</div>'+
           '<div style="font-size:11px;color:var(--text3);">300×300px PNG · คมชัด</div>'+
-          '<button class="btn btn-red btn-sm" style="margin-top:6px;font-size:11px;padding:4px 10px;" onclick="document.getElementById(\'s-bank-logo\').value=\'\';document.getElementById(\'bank-logo-wrap\').innerHTML=\'<div class=&quot;logo-upload-zone&quot; onclick=&quot;document.getElementById(\\\'s-bank-logo-file\\\').click()&quot;><div class=&quot;logo-upload-ico&quot;><i class=&quot;ti ti-building-bank&quot; style=&quot;font-size:28px;&quot;></i></div><div class=&quot;logo-upload-txt&quot;>อัปโหลดโลโก้ธนาคาร</div><div class=&quot;logo-upload-hint&quot;>PNG 300×300px คมชัด</div></div>\';"><i class="ti ti-trash"></i> ลบรูป</button>'+
+          '<button class="btn btn-red btn-sm" id="del-bank-logo" style="margin-top:6px;font-size:11px;padding:4px 10px;"><i class="ti ti-trash"></i> ลบรูป</button>'+
         '</div>'+
       '</div>':
       '<div class="logo-upload-zone" onclick="document.getElementById(\'s-bank-logo-file\').click()">'+
@@ -975,6 +944,17 @@
           S.bank={bankName,accountNumber,accountHolder,logoUrl};
           toast("บันทึกข้อมูลบัญชีแล้วค่ะ");set({tab:"settings"});
         }catch(e){btn.disabled=false;btn.innerHTML='<i class="ti ti-device-floppy"></i> บันทึกข้อมูลบัญชี';toast("บันทึกไม่สำเร็จ","error");}
+      });
+      // ลบรูปธนาคาร
+      document.getElementById("del-bank-logo")?.addEventListener("click",()=>{
+        document.getElementById("s-bank-logo").value="";
+        document.getElementById("bank-logo-wrap").innerHTML=
+          '<div class="logo-upload-zone" onclick="document.getElementById(\'s-bank-logo-file\').click()">'+
+          '<div class="logo-upload-ico"><i class="ti ti-building-bank" style="font-size:32px;"></i></div>'+
+          '<div class="logo-upload-txt">อัปโหลดโลโก้ธนาคาร</div>'+
+          '<div class="logo-upload-hint">PNG · 300×300px · คมชัดไม่แตก</div>'+
+          '</div>';
+        toast("ลบรูปแล้วค่ะ — กด บันทึก เพื่อยืนยัน");
       });
       document.getElementById("s-bank-logo-file")?.addEventListener("change",async e=>{
         const f=e.target.files[0];if(!f)return;
