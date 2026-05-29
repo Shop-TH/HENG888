@@ -204,24 +204,57 @@
 </head>
 <body>
 <div id="root"></div>
-<script type="module">
-  import{initializeApp}from"https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-  import{getFirestore,doc,getDoc,setDoc,updateDoc,addDoc,collection,getDocs,query,where,serverTimestamp,increment}from"https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-
+<!-- Firebase Compat SDK — ใช้แทน ESM เพราะ Telegram WebApp บล็อก ESM CDN imports -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+<script>
   const FC={apiKey:"AIzaSyDJ8zikwztSXFHlP_Wh2yD0dkerM-8774U",authDomain:"heng888-c53cf.firebaseapp.com",projectId:"heng888-c53cf",storageBucket:"heng888-c53cf.firebasestorage.app",messagingSenderId:"644962406547",appId:"1:644962406547:web:e008bcb4042e574eb7d473"};
+  firebase.initializeApp(FC);
+  const db=firebase.firestore();
+
+  // ── Firebase Compat helper functions (แทน ESM named imports) ──
+  const _col=(db,...args)=>db.collection(args.join("/"));
+  const serverTimestamp=()=>firebase.firestore.FieldValue.serverTimestamp();
+  const increment=(n)=>firebase.firestore.FieldValue.increment(n);
+
+  // wrapper ให้ใช้ API เดิมได้เลย
+  async function getDocs(ref){return ref.get();}
+  async function getDoc(ref){return ref.get();}
+  async function setDoc(ref,data,opts){return opts?.merge?ref.set(data,{merge:true}):ref.set(data);}
+  async function updateDoc(ref,data){return ref.update(data);}
+  async function addDoc(ref,data){return ref.add(data);}
+  async function deleteDoc(ref){return ref.delete();}
+  function collection(db,...args){
+    // รองรับทั้ง collection(db,"orders") และ collection(db,"shops","shop_001","brands")
+    if(args.length===1) return db.collection(args[0]);
+    return db.collection(args[0]).doc(args[1]).collection(args[2]);
+  }
+  function doc(db,...args){
+    // doc(db,"orders","id") หรือ doc(db,"shops","shop_001","products","id")
+    if(args.length===2) return db.collection(args[0]).doc(args[1]);
+    if(args.length===4) return db.collection(args[0]).doc(args[1]).collection(args[2]).doc(args[3]);
+    return db.collection(args[0]).doc(args[1]);
+  }
+  function query(ref,...constraints){
+    let q=ref;
+    constraints.forEach(c=>{if(c._type==="where")q=q.where(c.field,c.op,c.val);});
+    return q;
+  }
+  function where(field,op,val){return{_type:"where",field,op,val};}
+  function orderBy(field,dir="asc"){return{_type:"orderBy",field,dir};}
+
   const SHOP="shop_001";
-  const ASU="https://script.google.com/macros/s/AKfycbyboB9VlpED4a-322X7Fn9o8-jCDscF7s93SKeqisM-yDBNyeFKbuVVj7y7Qlr4HyQ/exec";
+  const ASU="https://script.google.com/macros/s/AKfycbyboB9VlpED4a-322X7Fn9o8-jCDscF7s93SKeqisM-yDBNyeFKbuVVj7y7Qlr4HyQ/exec
+";
   const BOT="8869386184:AAHopsdsjU9kLdpyq55UJG3acCx8TDhdwA4";
   const ADMIN="6777220645";
-  // ✅ ลิงก์ติดต่อแอดมินโดยตรง — เปลี่ยนได้ที่นี่จุดเดียว
   const ADMIN_CONTACT_URL="https://t.me/heng888admin";
 
-  const app=initializeApp(FC);const db=getFirestore(app);
   const tg=window.Telegram?.WebApp;const U=tg?.initDataUnsafe?.user||null;
   if(tg)tg.expand();
 
- const SUPERADMIN_IDS=["7234688831","6777220645"];
- const ADMIN_IDS_HARDCODE=["6960141528","8479838176"]; // admin hardcode
+  const SUPERADMIN_IDS=["7234688831","6777220645"];
+  const ADMIN_IDS_HARDCODE=["6960141528","8479838176"]; // admin hardcode
 
 
   // ── ตรวจ Role ──
@@ -258,8 +291,8 @@
     }catch(e){console.warn("loadBank error:",e);}
   }
 
-  async function fBr(){try{const s=await getDocs(collection(db,"shops",SHOP,"brands"));return s.docs.map(d=>({id:d.id,...d.data()}));}catch{return[];}}
-  async function fPr(){try{const q=query(collection(db,"shops",SHOP,"products"),where("active","==",true));const s=await getDocs(q);return s.docs.map(d=>({id:d.id,...d.data()}));}catch{return[];}}
+  async function fBr(){try{const s=await getDocs(collection(db,"shops",SHOP,"brands"));return s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){console.error("fBr:",e);return[];}}
+  async function fPr(){try{const s=await getDocs(collection(db,"shops",SHOP,"products"));return s.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.active!==false);}catch(e){console.error("fPr:",e);return[];}}
   async function track(){if(!U)return;try{const cid=String(U.id);const r=doc(db,"customers",cid);const s=await getDoc(r);if(!s.exists())await setDoc(r,{chatId:cid,shopId:SHOP,firstName:U.first_name||"",lastName:U.last_name||"",username:U.username||"",firstVisit:serverTimestamp(),lastVisit:serverTimestamp(),visitCount:1,totalOrders:0,totalSpent:0});else await updateDoc(r,{lastVisit:serverTimestamp(),visitCount:increment(1)});}catch{}}
 
   async function saveOrd(cart,ps,info){
