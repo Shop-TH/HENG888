@@ -214,14 +214,14 @@
   const BOT="8869386184:AAHopsdsjU9kLdpyq55UJG3acCx8TDhdwA4";
   const ADMIN="6777220645";
   // ✅ ลิงก์ติดต่อแอดมินโดยตรง — เปลี่ยนได้ที่นี่จุดเดียว
-  const ADMIN_CONTACT_URL="https://t.me/iamheng888";
+  const ADMIN_CONTACT_URL="https://t.me/heng888admin";
 
   const app=initializeApp(FC);const db=getFirestore(app);
   const tg=window.Telegram?.WebApp;const U=tg?.initDataUnsafe?.user||null;
   if(tg)tg.expand();
 
-  const SUPERADMIN_IDS=["7234688831","6777220645"];
-  const ADMIN_IDS_HARDCODE=["6960141528","8479838176"]; // admin hardcode
+ const SUPERADMIN_IDS=["7234688831","6777220645"];
+ const ADMIN_IDS_HARDCODE=["6960141528","8479838176"]; // admin hardcode
 
 
   // ── ตรวจ Role ──
@@ -361,7 +361,7 @@
     }
   }
 
-  let S={screen:"splash",brands:[],products:[],cart:[],activeBrand:null,activeProduct:null,orderId:null,slip:null,slipName:"",info:{phone:"",address:"",note:"",location:null},orderSnapshot:null};
+  let S={screen:"splash",brands:[],products:[],cart:[],activeBrand:null,activeProduct:null,orderId:null,slip:null,slipName:"",info:{phone:"",address:"",note:"",adminNote:"",location:null},orderSnapshot:null};
   const set=p=>{S={...S,...p};render();};
 
   function render(){
@@ -479,7 +479,7 @@
           items:S.cart.map(i=>{const p=S.products.find(x=>x.id===i.id);const b=S.brands.find(x=>x.key===p?.brand);return{name:p?.name||"",brand:b?.name||"",price:p?.price||0,qty:i.qty};}),
           total:tot(S.cart,S.products)
         };
-        set({screen:"success",orderId:id,cart:[],slip:null,slipName:"",info:{phone:"",address:"",note:"",location:null},orderSnapshot:snap});
+        set({screen:"success",orderId:id,cart:[],slip:null,slipName:"",info:{phone:"",address:"",note:"",adminNote:"",location:null},orderSnapshot:snap});
       }catch(e){
         sb.disabled=false;sb.innerHTML='<i class="ti ti-send" aria-hidden="true"></i> ส่งข้อมูลและสลิป';
         alert("เกิดข้อผิดพลาด กรุณาลองใหม่ครับ");
@@ -487,7 +487,7 @@
     });
   }
 
-  function bSu(){document.getElementById("rs")?.addEventListener("click",()=>set({screen:"home",cart:[],orderId:null,slip:null,slipName:"",info:{phone:"",address:"",note:"",location:null},orderSnapshot:null}));}
+  function bSu(){document.getElementById("rs")?.addEventListener("click",()=>set({screen:"home",cart:[],orderId:null,slip:null,slipName:"",info:{phone:"",address:"",note:"",adminNote:"",location:null},orderSnapshot:null}));}
   function addC(id){const ex=S.cart.find(i=>i.id===id);set({cart:ex?S.cart.map(i=>i.id===id?{...i,qty:i.qty+1}:i):[...S.cart,{id,qty:1}]});}
   function upQ(id,d){set({cart:S.cart.map(i=>i.id===id?{...i,qty:i.qty+d}:i).filter(i=>i.qty>0)});}
 
